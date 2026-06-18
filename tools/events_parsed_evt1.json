@@ -1,0 +1,764 @@
+{
+  "source_file": "extracted/FFTPACK_Extracted/EVENT/TEST.EVT",
+  "num_events_parsed": 1,
+  "events": [
+    {
+      "event_id": 1,
+      "offset": 10240,
+      "offset_hex": "0x002800",
+      "size": 20480,
+      "size_hex": "0x5000",
+      "scan_start": 12288,
+      "scan_end": 23964,
+      "num_bubbles": 82,
+      "bubbles": [
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><a1><d1><5e><6b><d3>l<d5><73><8f><56><88><d6><53><48><67><d3>i<5c><5e><85><d1>R<d1>Q<f8><fa><d2><53><69><49><41><41><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            12288,
+            12327
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><64><d3><67><d1><9a><9d><d1>5<9f><d1>C<94><d1>J<f8><d9><c2><d1><64><d2><53><d2><ba><6b><50><6b><d6><5d><49><d1><a0><89><88><5d><65><d1>R<d9><c9><f8><fa><5a><90><67><6d><48><67><50><65><49><d1>R<d1>R<d1>S<f8><d9><c2><3f><d1>P<3f><6b><d1><8b><6b><d4><63><d3><66><7b><64><d1>R<d1>R<f8><fa><d2><53><69><8c><4e><68><6c><d1>R<41><48><67><d1>R<41><d1>R<d1>R<d1>S",
+          "raw_byte_range": [
+            12327,
+            12429
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d5>I<48><58><63><4c><89><d1>R<d1>Q<d1>Q",
+          "raw_byte_range": [
+            12429,
+            12443
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<6d><48><67><d1>Q<f8><fa><50><89><49><d4><bd><d2>R<6b><d1><3f><5d><65><41><43><6b><48><d1>Q<d9><c9><fa><f8><d1>O<d3>l<d4>V<67><d1><3f><8f><d6><58><5e><d4><b5><79><56><5c><7e><68><f8><fa><d4><bd><d2>R<49><3f><88><6b><64><6c><67><41><6b><48><d1>Q<d9><c9><f8><f8><d1>O<54><48><54><d1>P<50><89><64><6c><d1>R<d1>P<f8><fa><3f><6b><d6><9f><d5><56><d6><a0><6c><f8><fa><d9><c0><d3>l<d4>V<d9><c1><5a><6b><7f><6b><5d><d1>Q<d1>Q",
+          "raw_byte_range": [
+            12443,
+            12568
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1><64><d3><67><d1><9a><9d><d1>5<9f><d1>C<94><d1>J<f8><d9><c2><50><89><49><d1>P<48><61><63><d1><a5><d3><6c><8f><d1><88><d4>3<54><5c><f8><fa><d1>B<9b><d1>K'<6b><d1><3f><67><6b><5d><85><d1>R<d1>R<d1>Q",
+          "raw_byte_range": [
+            12568,
+            12627
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<d1>B<9b><d1>K'<5d><65><d1>Q<d9><c9><f8><f8><d1>O<47><7b><45><6c><41><60><5c><41><d2><78><d3>i<5d><d1>Q<f8><fa><d2>7<d3>b<6b><b9><d1>9<9f><d1>D<d1>F<d6><9f><d5><56><d6><a0><6c><66><50><5d><b3><d1>Q<f8><fa><66><50><75><81><60><5c><d1>Q<d1>Q",
+          "raw_byte_range": [
+            12627,
+            12707
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><64><d3><67><d1><9a><9d><d1>5<9f><d1>C<94><d1>J<f8><d9><c2><9f><9f><9f><9f><d1>R<d1>P<d2><78><8f><d2><b8><60><63><41><88><d1>R<d9><c9><f8><fa><d6><5d><49><b9><d1>9<9f><d1>D<d1>F<5d><d1>R<d1>Q<f8><d9><c2><41><81><d1>P<b9><d1>9<9f><d1>D<d1>F<64><3f><60><5c><d3>i<65><f8><fa><d2><b8><60><5c><d1><8b><49><85><41><48><7f><54><89><90><67><d1>R<d1>S<f8><fa><f8><d9><c2><d6><5d><6c><d4><bd><d2>R<6b><d1><3f><8f><d2><c7><41><d1>P<f8><fa><da>S<d3><a8><67><d1>x<d4> <8f><d4><8e><d6><4f><54><5c><6b><5d><85><d1>R<d1>S<f8><fa><d6><5d><6c><d9><c0><d3><72><d9><c1><68><67><60><5c><6b><5d><d1>R<d1>Q<d1>Q<f8><d9><c2><d1><a1><d1><5e><6b><d3>l<d5><73><8f><56><88><d6><53><48><67><d3>i<5c><5e><85><d1>R<d1>Q<f8><fa><d2><53><69><49><41><41><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            12707,
+            12918
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><64><d3><67><d1><9a><9d><d1>5<9f><d1>C<94><d1>J<f8><d9><c2><d1><64><d2><53><d2><ba><6b><50><6b><d6><5d><49><d1><a0><89><88><5d><65><d1>R<d9><c9><f8><fa><5a><90><67><6d><48><67><50><65><49><d1>R<d1>R<d1>S<f8><d9><c2><3f><d1>P<3f><6b><d1><8b><6b><d4><63><d3><66><7b><64><d1>R<d1>R<f8><fa><d2><53><69><8c><4e><68><6c><d1>R<41><48><67><d1>R<41><d1>R<d1>R<d1>S",
+          "raw_byte_range": [
+            12918,
+            13020
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<6b><d2><ba><d1><ab><8c><87><6b><d7>C<68><6c><f8><fa><d1>?<d1><76><56><4b><88><4d><86><41><5d><d1>S",
+          "raw_byte_range": [
+            13020,
+            13048
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<b9><d1>9<9f><d1>D<d1>F<d6><9f><d5><56><d6><a0><f8><d1>O<cb><cb><cb><cb><d1>R<d1>S<d1>K<99><d1>B<ce><d1>B<c5><d4><b0><d1>P<f8><fa><50><6b><d7>C<6c><7b><5d><d3>e<86><67><41><6b><64><56><d1>S",
+          "raw_byte_range": [
+            13048,
+            13106
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<5a><43><48><d1>R<d1>S<d5><c7><89><67><d7>C<85><d1>S",
+          "raw_byte_range": [
+            13106,
+            13145
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><9a><d1><54><9a><d1>K<97><d1>A<92><f8><d1>O<5a><89><6c><d1>P<66><43><41><43><50><65><67><6b><d1>R<d9><c9>",
+          "raw_byte_range": [
+            13145,
+            13177
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<41><41><48><d1>P<85><4c><d5>I<4e><d1>S<f8><f8><d1>O<47><7b><45><6c><9a><d1>K<97><d1>A<92><64><6c><67><41><d1>S",
+          "raw_byte_range": [
+            13177,
+            13233
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1><9a><d1><54><9a><d1>K<97><d1>A<92><f8><d1>O<45><d1>R<d9><c9>",
+          "raw_byte_range": [
+            13233,
+            13253
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<d2>7<d3>b<6b><d1><9a><d1><54><6c><65><43><6b><d5><7d><68><d2><53><90><64><41><88><d1>S<f8><fa><47><7b><45><6c><5a><6b><d2><ba><d1><ab><8c><87><67><6b><5d><d1>S",
+          "raw_byte_range": [
+            13253,
+            13319
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><9a><d1><54><9a><d1>K<97><d1>A<92><f8><d1>O<5a><90><67><d1>Q<f8><fa><96><ad><85><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            13319,
+            13349
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<da>Q<64><6c><67><41><d1>S<f8><fa><47><7b><45><6c><9a><d1>K<97><d1>A<92><64><6c><67><41><6b><5d><d1>S<f8><d1>O<d1>B<d1>N<d1>K<97><d1>A<92><d1><9a><d5>Y<8f><85><4c><d6><47><8c><69><f8><fa><d1><6f><d5><ca><d8>I<6b><55><55><41><66><7f><49><f8><fa><47><7b><45><8f><d2><79><87><d1><b1><54><5c><d1>R<d1>S<f8><d1>O<41><61><6b><d1><8c><48><d1>P<d1><9a><d2><77><8f><d6><8f><49><58><88><5c><7e><68><f8><fa><d2><ba><d1><ab><8c><87><8f><d2>I<d4><a9><54><5c><6b><5d><d1>S<f8><fa><d3>l<d5><73><67><d1><9a><d5>Y<8f><d3><7d><41><d1><b1><56><5c><7e><68><67><d1>S<f8><d1>O<81><61><86><6b><81><87><d3><8d><6c><d3>6<68><d2><cf><d7><9a><5d><60><5c><85><d1>S<f8><fa><d1><43><6b><d6>B<d1>x<6b><d1><9a><d1><55><8f><d5><74><d2><53><68><d2><b6><58><48><4e><63><f8><fa><d4><ad><d3><bc><54><d1>P<47><7b><45><8f><d1><9a><d2><71><68><d1>y<89><5c><d1>S<f8><d1>O<d5><74><d3><a8><67><9a><d1><b9><d1>A<92><68><d6><42><5c><67><d1><9a><d1><55><49><f8><fa><64><4a><88><65><6c><d6><47><45><67><48><60><5c><6b><64><67><d1>P<f8><fa><d2><5d><d4>M<d3>c<68><d1><9a><d2><77><6c><47><7b><45><6b><7f><6b><5d><d1>S<f8><d1>O<65><50><8a><49><9a><d1>A<ba><a9><49><d7><5c><d2>H<54><5c><d1>S<f8><fa><d1>R<41><81><d1>P<d2>9<5d><68><d1><9a><d1><55><49><9a><d1><b9><d1>A<92><6b><f8><fa><d1><55><64><3f><88><48><66><43><48><67><66><8c><48><86><90><d1>S<f8><d1>O<d1>9<d1>N<a0><d1><70><49><d3>6<d8>k<8f><d1><9a><6b><d8>3<68><56><88><5c><7e><68><f8><fa><d1><c7><48><86><d9><c0><d5>E<d9><c1><8f><f8><fa><d2>I<d4><a9><54><5c><6b><48><7f><54><89><90><d1>R<d1>S<f8><d1>O<41><57><89><68><54><63><7f><d1>P<f8><fa><d1><6f><d5><ca><d8>I<6b><55><55><41><66><7f><6b><d3><78><d6>E<6c><f8><fa><d1><c1><d4><7a><54><68><67><60><5c><6b><5d><d1>S",
+          "raw_byte_range": [
+            13349,
+            13836
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><9a><d1><54><9a><d1>K<97><d1>A<92><f8><d1>O<96><ad><85><b3><d1>Q<fa><d4><82><d2><94><68><96><ad><5d><8c><d1>Q<f8><fa><d6><5d><68><6c><d3>:<55><86><89><67><41><d1>Q",
+          "raw_byte_range": [
+            13836,
+            13884
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<66><43><d6><47><47><43><65><47><7b><45><6b><d6><6f><d1><87><5d><d1>S<f8><f8><d1>O<d1><a1><d1><5e><68><65><60><63><7f><47><7b><45><49><f8><fa><d1><9a><d1><54><64><3f><88><48><66><43><48><67><66><f8><fa><66><43><64><7f><41><41><50><65><d1>S<f8><d1>O<d1><a1><d1><5e><6c><d9><c2><d1><9a><d1><54><d9><c3><65><41><43><d4>R<d1><3f><67><9b><d1>N<b9><8f><f8><fa><d1><87><68><d1>y<89><5c><d1>S<f8><fa><5a><89><5d><4e><64><d1>?<d1><76><5d><d1>S",
+          "raw_byte_range": [
+            13884,
+            14023
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><9a><d1><54><9a><d1>K<97><d1>A<92><f8><d1>O<d1>R<3f><67><5c><5c><5e><6c><d6><5d><8f><66><43><56><88><61><7f><87><d9><c9><f8><fa><41><60><5c><41><d2><78><8f><52><58><5c><41><6b><d9><c9>",
+          "raw_byte_range": [
+            14023,
+            14074
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<d2><78><7f><54><67><4c><63><41><41><d1>S<d1><6c><6b><7b><7b><f8><fa><d9><c2><d1><9a><d1><54><d9><c3><64><41><63><4c><89><89><6d><85><41><d1>S",
+          "raw_byte_range": [
+            14074,
+            14134
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><9a><d1><54><9a><d1>K<97><d1>A<92><f8><d1>O<d6><5d><6c><92><b8><9b><d1>N<a7><d1>3<d2><71><6b><d2><62><8f><d1><84><4c><d3>i<d1>Q<f8><fa><d5>q<68><7f><d3>2<d1><ad><52><89><5c><87><6c><54><67><41><b3><d1>Q",
+          "raw_byte_range": [
+            14134,
+            14194
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<64><6c><d1>P<66><43><56><88><d9><c9><fa><d1>9<d1>N<a0><d1><70><68><f8><fa><d6><80><86><45><86><89><89><6d><d2><8a><d1>P<d1><b0><d2>o<5d><8a><43><d9><c9><fa><f8><d1>O<d1><a1><d1><5e><6c><d1><87><d2><87><4e><8f><54><5c><41><5d><4e><5d><d1>S<f8><fa><47><7b><45><49><d1><9a><d2><77><68><61><4c><5c><7e><6b><67><d1>R<d1>S",
+          "raw_byte_range": [
+            14194,
+            14303
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1><9a><d1><54><9a><d1>K<97><d1>A<92><f8><d1>O<d1>R<3f><67><5c><6c><41><60><5c><41><d2><78><d3>i<67><6b><d9><c9>",
+          "raw_byte_range": [
+            14303,
+            14336
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<d1><a1><d1><5e><6c><d1>9<d1>N<a0><d1><70><6b><d3>1<d1><8b><64><7f><67><4e><89><6d><f8><fa><a4><d1>B<af><d1>N<ba><d1><70><6b><d6><9e><d6><8e><6b><d3>i<64><7f><67><41><d1>S<fa><f8><d1>O<5c><5d><6b><d9><c0><d8>X<d1><3f><d3>i<d9><c1><5d><d1>S",
+          "raw_byte_range": [
+            14336,
+            14427
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<b9><d1>9<9f><d1>D<d1>F<d6><9f><d5><56><d6><a0><f8><d1>O<d1>K<99><d1>B<ce><d1>B<c5><d4><b0><d1>P<d1><9a><d1><54><d6>k<68><6c><7f><43><d1><82><54><f8><fa><d5><4e><8f><d2><82><81><54><63><7f><86><41><7b><54><84><43><d1>S<f8><d1>O<d4>n<d3>6<8f><4a><5e><90><65><d2><6c><d7>w<56><89><6d><f8><fa><d1><a1><d1><5e><6b><d9><c0><d8>X<d1><3f><d9><c1><8f><d6><9b><7d><50><65><7f><f8><fa><3f><87><7b><56><7b><41><d1>R<d1>S",
+          "raw_byte_range": [
+            14427,
+            14543
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<43><7d><d1>P<5a><43><5d><67><d1>R<d1>S",
+          "raw_byte_range": [
+            14543,
+            14578
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>K<99><d1>B<ce><d1>B<c5><65><d2><ce><6d><89><5c><d5><6d><d1><51><f8><d1>O<d2><63><4c><5b><d1>P<b7>'<d1>A<d1>N<af><d1>Q",
+          "raw_byte_range": [
+            14578,
+            14616
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>Q<d1>Q",
+          "raw_byte_range": [
+            14616,
+            14621
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>B<d1>N<b9><d1>K'<b3><c2><f8><d1>O<5a><6b><d3><49><68><d9><c2><d4><bd><d2>R<d9><c3><8f><85><50><58><d1>Q",
+          "raw_byte_range": [
+            14621,
+            14654
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<d6>B<d1>x<49><d2>k<5d><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            14654,
+            14676
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>B<d1>N<b9><d1>K'<b3><c2><f8><d1>O<d9><c2><d4><bd><d2>R<d9><c3><8f><50><5e><86><75><d2><a5><4f><8a><d1>Q<f8><fa><5a><43><54><5c><86><d6>B<d1>x<8f><d4><be><d3>J<54><85><43><d1>Q",
+          "raw_byte_range": [
+            14676,
+            14730
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>B<d1>N<b9><d1>K'<b3><c2><f8><d1>O<50><89><5b><7b><52><54><4c><f8><fa><ae><b7>'<92><b3><9f><a9><b8><d1>N<d1>J<d1>Q<f8><d1>O<85><43><81><4c><d1><87><68><d1>y<89><5c><5b><d1>Q<f8><fa><d6><9f><d5><56><d6><a0><d6>k<7f><d7><8a><6d><89><88><50><65><5d><8a><43><d1>Q",
+          "raw_byte_range": [
+            14730,
+            14807
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>B<d1>N<b9><d1>K'<b3><c2><f8><d1>O<51><d3>k<d7><bd><5d><60><5c><67><d1>S<f8><fa><47><7b><45><5c><5e><6c><d2>I<d4>g<7c><5d><d1>Q<f8><d1>O<3f><65><6c><47><7b><45><5c><5e><49><d1><97><62><4e><8a><d1>S<f8><fa><d2>H<48><54><63><47><4c><67><d1>Q",
+          "raw_byte_range": [
+            14807,
+            14879
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<d6><9f><d5><56><d6><a0><7f><a0><d1>B<5d><60><5c><6b><48><d1>R<d1>Q<d1>Q",
+          "raw_byte_range": [
+            14879,
+            14909
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d5><56><d1><5a><d1><51><d1><a9><af><b7>'<9a><f8><d1>O<d7><6f><d1><96><6c><d1>R<d1>P<d7><6f><d1><96><6c><d4><7a><d6><3f><67><6b><48><d1>R<d1>S",
+          "raw_byte_range": [
+            14909,
+            14951
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<41><43><5e><6c><f8><fa><9a><d1>C<68><64><48><41><d3><8d><8f><4a><4c><d1>J<55><80><6a><44><b3><d1>Q",
+          "raw_byte_range": [
+            14951,
+            14979
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><9c><c5><9c><d1>A<9a><d1>J<f8><d1>O<4c><5a><b3><d1>Q",
+          "raw_byte_range": [
+            14979,
+            15000
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<50><65><49><64><4a><5c><d1>Q<f8><d1>O<5a><43><52><d1>P<d3><5d><5e><61><d3><5d><5c><89><61><6b><d5>T<d3><45><8f><f8><fa><d4><a3><41><63><4a><5c><90><5d><b3><d1>Q<f8><fa><5a><43><81><60><63><47><7b><45><6c><d2>H<4a><63><4a><5c><b3><d1>Q<f8><d1>O<d2><86><d2>I<52><89><88><5d><4e><5d><65><d9><c9><f8><fa><47><7b><45><6c><d1>P<d9><c0><d7><6f><d1><7f><d9><c1><65><d3><c7><56><88><f8><fa><b7>'<d1>A<d1>N<af><64><52><45><d2><86><d2>I<54><63><4a><5c><90><5d><d1>Q",
+          "raw_byte_range": [
+            15000,
+            15126
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<d7><6e><49><b7>'<d1>A<d1>N<af><8f><d2><86><d2>I<54><63><4a><5c><d1>R<d9><c9>",
+          "raw_byte_range": [
+            15126,
+            15158
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><92><d1>B<9c><a9><f8><d1>O<47><7b><45><5d><60><63><c9><9a><d1>B<c6><d2><71><6b><d1>x<d4> <65><54><63><f8><fa><5a><6b><d2><c7><d3>2<8f><d3>e<60><63><41><88><6c><57><5d><d1>Q<f8><d1>O<5a><43><d1>P<ce><d1>J<b0><d1>A<92><d1><cf><d4>F<64><9a><d1>C<49><f8><fa><d5>e<68><d7><bc><8c><89><63><41><88><65><4a><d1>P<f8><fa><d7>v<d4><cb><8f><d5><54><d2>k<54><5c><85><43><68><67><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            15158,
+            15273
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<9f><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            15273,
+            15288
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><92><d1>B<9c><a9><f8><d1>O<47><7b><45><5d><60><63><9a><d1>C<8f><d2><86><d2>I<56><88><5c><7e><68><f8><fa><ce><d1>J<b0><d1>A<92><d1><cf><d4>F<64><d2><87><4e><5c><90><5d><8a><43><d9><c9>",
+          "raw_byte_range": [
+            15288,
+            15344
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<6d><48><67><50><65><8f><b3><d1>Q<fa><d2>P<6b><d3><49><64><f8><fa><d7><52><60><63><41><88><d1>x<d4> <8f><d3>J<60><63><47><4e><88><48><b3><d1>Q",
+          "raw_byte_range": [
+            15344,
+            15393
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><92><d1>B<9c><a9><f8><d1>O<5d><60><5c><86><d1>P<d2><52><48><86><6c><d4><49><63><63><47><4e><d1>Q<f8><fa><d1><7f><d2><45><d3>c<67><d1>x<d4> <5d><4e><65><6c><d3><81><86><90><48><86><67><d1>Q",
+          "raw_byte_range": [
+            15393,
+            15451
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><b7>'<d1>A<d1>N<af><f8><d1>O<92><d1>B<9c><a9><b3><d1>Q<fa><85><4c><7f><b6>'<d1>N<af><8f><b3><d1>Q<f8><fa><d3><bc><54><63><81><88><5b><d1>P<d3><bc><54><63><81><88><d1>N<b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            15451,
+            15511
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><92><d1>B<9c><a9><f8><d1>O<d7><5a><54><41><48><d1>P<b7>'<d1>A<d1>N<af><d1>Q<f8><fa><d2><5d><d1><76><6b><d4><7a><d1><3f><52><49><d7><5a><54><41><5d><8a><b3><d9><c9><f8><d1>O<5d><49><d1>P<5a><89><49><47><7b><45><6b><d3><81><d3><6c><5d><d1>Q<f8><fa><d1><cf><d2>B<d1><b1><6b><47><7b><45><68><6c><f8><fa><d6><3f><d5>8<8f><d3><4f><45><88><5d><4e><6b><d1><3f><6c><67><41><d1>Q<f8><d1>O<5a><43><5d><d1>P<5a><43><81><60><63><d1>P<f8><fa><d6><7d><4a><d7><5a><54><49><88><50><65><54><48><64><4a><67><41><90><5d><d1>Q<f8><fa><6c><60><6c><60><6c><60><d1>P<41><41><d2><54><d3>1<5d><59><d1>Q<d1>Q",
+          "raw_byte_range": [
+            15511,
+            15677
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><b7>'<d1>A<d1>N<af><f8><d1>O<d2><b8><41><5c><41><50><65><6c><5a><89><5d><4e><48><d1>R<d9><c9><f8><fa><5a><89><5d><4e><48><b3><d1>P<92><d1>B<9c><a9><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            15677,
+            15729
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><92><d1>B<9c><a9><f8><d1>O<5a><43><41><4a><87><5c><61><67><d1>P<b7>'<d1>A<d1>N<af><d1>Q<f8><fa><56><4d><68><d8>k<6b><d3><58><8f><d3><7d><8c><58><63><81><88><b3><d1>Q",
+          "raw_byte_range": [
+            15729,
+            15782
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><b7>'<d1>A<d1>N<af><f8><d1>O<9a><d1>C<6c><47><7b><45><6b><41><41><67><87><68><6c><67><86><90><d1>Q<f8><fa><d5>q<68><7f><d2><86><d2>I<52><89><90><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            15782,
+            15834
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<d1><53><d1><44><d7>7<48><d1>P<b7>'<d1>A<d1>N<af><d9><c9>",
+          "raw_byte_range": [
+            15834,
+            15861
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<d1>p<d1><51><b7>'<d1>A<d1>N<af><f8><d1>O<9a><d1>C<68><d5>9<43><67><d1>P<e0><d1>Q<f8><fa><92><d1>B<9c><a9><6b><d2><52><6c><d1>P<47><7b><45><6b><d4><9c><5d><b3><d1>Q<d1>Q",
+          "raw_byte_range": [
+            15861,
+            15914
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><e0><f8><d1>O<b7>'<d1>A<d1>N<af><d1>R<d1>R<d1>S",
+          "raw_byte_range": [
+            15914,
+            15936
+          ]
+        },
+        {
+          "kind": "untranslated",
+          "speaker": null,
+          "text": "<d1>p<d1><51><92><d1>B<9c><a9><f8><d1>O<4c><d1>R<4c><5a><b3><d1>R<d1>R<fa><47><7b><45><5c><5e><d1>R<d1>R<f8><fa><67><d1>P<d6>3<d3><a8><d3>i<66><7f><68><d1>R<d1>R<d1>R<81><86><89><d1>R<d1>R",
+          "raw_byte_range": [
+            15936,
+            15996
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<be>8<7c><58>1<e5>q<59>1<6d>.2133.N143.<83>153.<84>143oJ4<ff><ff><ff><f1>2P<f8>7<c4><fd><e8>1<ee>22CW1<e5>4Hq2HJ2kQ4PA94<e5>6HC<58>21<4d><80><63><a8>TP<f8>5<94>",
+          "raw_byte_range": [
+            20480,
+            20602
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "82",
+          "raw_byte_range": [
+            20602,
+            20605
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "12C?N41P<a8>5<c8>",
+          "raw_byte_range": [
+            20605,
+            20619
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "82<5e>1<82>CWG<50>P<e8>4<b8>",
+          "raw_byte_range": [
+            20619,
+            20636
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "82<4e>1<f2>C<c0>F<44>P<e8>3<e8>",
+          "raw_byte_range": [
+            20636,
+            20653
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<90>1!1<72>D<e0>EuP<e8>3<44><ff><d8>1k1EGqU<49><45>21<45>N1<45><83>1<45><80>1<45><81>1<4a><f1><b4>Q4KVV4GG11CE<f1><56>Q4PA94<f1><94>HC<59>21<e5>4<e5>1<f1><5a>GGI2q3<e5>1<f1>UHC<5a>21<f1>UGG\"3C82<e5>1<51>1<ff><ff><e5>1<f1>oHC<59>21<f1>:Hq<5b>2GG<92>4q3<e5>1Hq<5c>2<51>2<ff><ff><e5>1HJ3<f1>GxJS1e<6f>JHJ2<f1>UGG<92>5J<f8><ff>C2<e5>1<51>2<ff><ff><e5>1<f1><50><4b><6d><97>2<97>N<f1>1<97><80><97><81><97><83>X<48><f1>AHq2jq421<f1>KjJ21<63><ca>P<68>2a<ff><f8>1k1<50>HG?goN1HN3xN<e4><ff>11<6f>N<44>NoN82<f1>HxN1S<6f>NeN348fNHN2hg<f1>Ko21x2<e4><ff>11<6f>2o282<f1>H<44>2x21S<6f>2e22381<79>22hg<f1>eo<83>1x<83><e4><ff>11<6f><83>o<83>82<f1>H<44><83>x<83><f2><ff>1S<6f><83>e<83>2551<79><83>2f<83>h<f1>KHC<5d>2<f1>EHC<5e>2<e5>8S2GG\"6N1<e5>1GG<92>7q1<e5>1<51>1<ff><ff><f1>4<51>2<ff><ff><f1>AH2<61>2<f1>5H<83><63>2<f1>PHN.2<f1>PGGH8N3<e5>1<f1>OGG<92>9q1<e5>1<f1>5HN<60>2<f1>5GG\"AN3<e5>1<f1>3<51>2B<e5>1<51>2<ff><ff><f1>3<51>1<ff><ff><f1>DHC<65>2<f1>3HC2<f1>FGGHCC3<e5>1<f1>3H2<62>2<f1>3H<83><64>2S1P<68>2a<ff><68>2k1IGy<f1>U<e5>4Hq2jq91<f1>CHJ2jJD<f1>UHC2jC42<64>CeC644<f1><4b>jJfCHC2<f1>8jC81<f1>UGG\"DJQE3<e5>1GG<92>EC13<e5>1<51>1<ff><ff><f1>8<51>2<ff><ff><49><45><84>1<4a><f1>:<4b><6d><84><97><84><f1>1o<84>4<ff><ff><ff><f1>2X<48>p422<f1>2p411<f1>2<55>1<f1>6X<48>p41<f1>9go<84>1<f1>2x<84><e2><ff>11<6f><84>H<84><6a>2<44><84>o<84>84x<84>2Ek<6f><84>x<84>O2E!<6f><84>x<84>W1CQ<6f><84>H<84>X<f1>6XeH<84>ahP<b8>1q<ff><58>2k1IG?HN2jN1xN<f2><ff>Y1e<f1>A<60>U<53><84>CjJ411H<83>2j<83>1x<83><f2><ff>M1W<f1>A<8c>262H22x2<f0><ff>1ejq41<f1>MHJ3xJ<c0><ff><ff><ff><eb><ff>2C<64><f1>ej281<6f>JHJ<67>2X<41><f1>UY1<60><f1>UGG\"F<84><f5><ff>EWI<e5>1<51>1<ff><ff>GGIGJ<e1><ff><fa><ff><e0><ff><e5>1xq11<6f>q<f1>AHq4Xmxq<f4><ff>",
+          "raw_byte_range": [
+            20653,
+            22086
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<ff>118<6f>qxq<e7><ff>218<6f>qxq<d9><ff>",
+          "raw_byte_range": [
+            22086,
+            22118
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "<ff>317<6f>qxq<ca><ff>417<6f>qxq<ba><ff><fd><ff>616<6f>qxq<aa><ff>816<6f>qjN2j241xq<9a><ff><fd><ff>916<6f>qxq<8a><ff>A16<6f>qoq12xq<7a><ff><fc><ff>A16<6f>qxq<6a><ff>C16<6f>qxq<5a><ff>C16<6f>q:q<f1>F<be><57><b0><57>g<7e><57>Sj28<7e><57>UjNhGG\"HNK<e5>1<e5>8GG<92>J2<fa><ff><e5>1<51>1K<e5>1<51>2<ff><ff><f1>8<51>1<ff><ff><e5>1jN4111gxN<f2><ff>Y11<6f>NHN3xN<c7><ff>C1e<6f>NjN411HN3xN<a6><ff><f8><ff>1e<f1>KoN12<f1>L:Nhg<f1>yx2<f0><ff>11<6f>2j242<64>2<f1>KH23x2<c2><ff>81<50><f1>yo212<f1>L:2hg<f1>UH<83>3x<83><e1><ff><fa><ff>1y<6f><83>j<83>411x<83><c4><ff><dc><ff>1y<f1>eo<83>12<f1>L:<83>hHJ<68>2<f1>y<e5>8z<83><f1>2<49><45><82>1<82><4a><f1><50>GGHIC3",
+          "raw_byte_range": [
+            22118,
+            22649
+          ]
+        },
+        {
+          "kind": "narration",
+          "speaker": null,
+          "text": "<ff><e5>1<f1>K<63><aa>P<a8>2q<ff><58>2<ae>1mI<60>A<85><f1>:p<e1><e1>4o<e1><e1>4<f1>Xo<e1><e1><e1>4p<e1><e1><e1>4<f1>XzJ<4b><db>O <PRAYER>Father<e2>6,<PRAYER> abandon not Your wayward<f8>children of Ivalice<e2>6,<PRAYER> but deliver us from our<f8>sins<e2>6,<PRAYER> that we might know salvation<e2>K.<e2>1",
+          "raw_byte_range": [
+            22649,
+            22855
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "Knight",
+          "text": "<SPEAKER>Knight<f8><e3>Lady Ovelia, it is time.",
+          "raw_byte_range": [
+            22855,
+            22892
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "Ovelia",
+          "text": "<SPEAKER>Ovelia<f8><e3>I'll not be much longer, Agrias.",
+          "raw_byte_range": [
+            22892,
+            22937
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "Agrias",
+          "text": "<SPEAKER>Agrias<f8><e3>Your escort has already arrived, Majesty.",
+          "raw_byte_range": [
+            22937,
+            22991
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "Priest",
+          "text": "<SPEAKER>Priest<f8><e3>Please, heed the good lady's words, Highness.<f8>You must hurry.",
+          "raw_byte_range": [
+            22991,
+            23066
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "Swordsman",
+          "text": "<SPEAKER>Swordsman<f8><e3>Still in here, are you? It's been<f8>the better part of an hour!",
+          "raw_byte_range": [
+            23066,
+            23143
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "Gaffgarion, you forget yourself, ser!<f8>You are in the presence of the princess!",
+          "raw_byte_range": [
+            23143,
+            23224
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "Gaffgarion",
+          "text": "<SPEAKER>Gaffgarion<f8><e3>Mayhap bowed heads would less offend.<f8><f8>You would do well to waste less time on<f8>idle pleasantries.",
+          "raw_byte_range": [
+            23224,
+            23337
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "I see even the noble Order of the<f8>Northern Sky cannot rid itself of<f8>vulgar knaves.",
+          "raw_byte_range": [
+            23337,
+            23420
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "A guard captain in these rain-sodden<f8>hinterlands ought not expect chivalry.<f8><f8>We are in employ of the Order, not of it.<f8>Our pay does not cover trite courtesies<f8>to the likes of you.",
+          "raw_byte_range": [
+            23420,
+            23602
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "Govern your tongue!",
+          "raw_byte_range": [
+            23602,
+            23622
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "Enough. Let us be on our way.",
+          "raw_byte_range": [
+            23622,
+            23652
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "The Father watch over you, child.",
+          "raw_byte_range": [
+            23652,
+            23687
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "And you, Elder.",
+          "raw_byte_range": [
+            23687,
+            23704
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "Knight",
+          "text": "<SPEAKER>Knight<f8><e3>Milady! The enemy is upon us!",
+          "raw_byte_range": [
+            23704,
+            23745
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "Duke Goltanna's men?",
+          "raw_byte_range": [
+            23745,
+            23766
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "We are paid for this.<f8>Time to earn our keep.<f8><f8>What is it, <e0>?<f8>You above getting paid to<f8>do a job?",
+          "raw_byte_range": [
+            23766,
+            23864
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "Deliver us, O Lord...",
+          "raw_byte_range": [
+            23864,
+            23887
+          ]
+        },
+        {
+          "kind": "speaker",
+          "speaker": "<e0>",
+          "text": "<SPEAKER><e0><f8><e3>I'm a knight no longer.<f8>Just another sellsword.",
+          "raw_byte_range": [
+            23887,
+            23941
+          ]
+        },
+        {
+          "kind": "text",
+          "speaker": null,
+          "text": "Right then. To battle!",
+          "raw_byte_range": [
+            23941,
+            23964
+          ]
+        }
+      ],
+      "bytecode_regions": [
+        {
+          "start": 15996,
+          "end": 20480,
+          "length": 4484,
+          "hex_preview": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ... (+4228 bytes)"
+        }
+      ]
+    }
+  ]
+}

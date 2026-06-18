@@ -4,3 +4,17 @@
 /DocumentOfComunity.md
 .claude
 strings.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Large derived files (regenerable via tools)
+tools/TEST_EVT_decoded.txt
+tools/TEST_EVT_dialog_only.txt
+tools/events_parsed.json
+tools/font_renders/
+
+# Translation outputs (regenerable + user-specific)
+tools/translation_sample.json
+tools/translation_workspace/
