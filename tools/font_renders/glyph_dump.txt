@@ -1,0 +1,1919 @@
+--- Glyph #0 (0x00) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX   .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ o.   .oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #1 (0x01) ---
+          
+    .     
+    .X    
+   o.X    
+  ...X    
+   X.X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+  .....   
+   XXXXX  
+          
+
+--- Glyph #2 (0x02) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX   .X 
+ .X    .X 
+  X   ooX 
+     o.XX 
+    o.XX  
+   o.XX   
+  o.XX    
+ o.XX     
+ .......  
+  XXXXXXX 
+          
+
+--- Glyph #3 (0x03) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX   .X 
+ .X    .X 
+  X   .oX 
+    ..oXX 
+     X.oX 
+ .     .X 
+ .X    .X 
+ o.   .oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #4 (0x04) ---
+          
+    o..   
+   X.X.X  
+   ooX.X  
+  X.XX.X  
+  ooX .X  
+ X.XX .X  
+ ooX  .X  
+ .XX  .X  
+ .......  
+  XXXX.XX 
+      .X  
+       X  
+          
+
+--- Glyph #5 (0x05) ---
+          
+ .......  
+ .XXXXXXX 
+ .X       
+ .o...o   
+ ..XXX.o  
+ .XX   .X 
+  X    .X 
+       .X 
+ .     .X 
+ o.   .oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #6 (0x06) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX   .X 
+ .X     X 
+ .o...o   
+ ..XXX.o  
+ .XX   .X 
+ .X    .X 
+ .X   X.X 
+ o.  X.oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #7 (0x07) ---
+          
+ .......  
+ .XXXXX.X 
+ .X   X.X 
+ .X   ooX 
+  X  o.XX 
+    X.XX  
+    ooX   
+    .XX   
+    .X    
+    .X    
+    .X    
+     X    
+          
+
+--- Glyph #8 (0x08) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX   .X 
+ .X    .X 
+ o.   .oX 
+  o...oXX 
+ o.XXX.oX 
+ .XX   .X 
+ .X    .X 
+ o.   .oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #9 (0x09) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX   .X 
+ .X    .X 
+ .X    .X 
+ o.   ..X 
+  o....oX 
+   XXX.XX 
+     .oX  
+    .oXX  
+   .oXX   
+    XX    
+          
+
+--- Glyph #10 (0x0a) ---
+          
+   X.     
+   ooo    
+   .X.X   
+  X.X.X   
+  ooXoo   
+  .XX .X  
+ X.X  .X  
+ o.....o  
+ .XXXXX.X 
+X.X    .X 
+...   ... 
+ XXX   XXX
+          
+
+--- Glyph #11 (0x0b) ---
+          
+ ....o    
+  .XX.o   
+  .X  .X  
+  .X  .X  
+  ....oX  
+  .XXX.o  
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X  .oX 
+ .....oXX 
+  XXXXXX  
+          
+
+--- Glyph #12 (0x0c) ---
+          
+  o..oX.  
+ o.XXo..X 
+ .XX  o.X 
+ .X    .X 
+ .X     X 
+ .X       
+ .X       
+ .X    .  
+ .X    .X 
+ o.   .oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #13 (0x0d) ---
+          
+ ....o    
+  .XXo.   
+  .X  oo  
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X  ooX 
+  .X o.XX 
+ ....oXX  
+  XXXXX   
+          
+
+--- Glyph #14 (0x0e) ---
+          
+ .......  
+  .XXXX.X 
+  .X    X 
+  .X      
+  .....   
+  .XXXXX  
+  .X      
+  .X      
+  .X   .  
+  .X   .X 
+ .......X 
+  XXXXXXX 
+          
+
+--- Glyph #15 (0x0f) ---
+          
+ .......  
+  .XXXX.X 
+  .X   .X 
+  .X    X 
+  .....   
+  .XXXXX  
+  .X      
+  .X      
+  .X      
+  .X      
+ ...      
+  XXX     
+          
+
+--- Glyph #16 (0x10) ---
+          
+  o..oX.  
+ o.XXo..X 
+ .XX  o.X 
+ .X    .X 
+ .X     X 
+ .X ....  
+ .X  XX.X 
+ .X    .X 
+ .X   o.X 
+ o.  o..X 
+  o..oX.X 
+   XXXX X 
+          
+
+--- Glyph #17 (0x11) ---
+          
+ ...  ... 
+  .XX  .XX
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  ......X 
+  .XXXX.X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+ ...  ... 
+  XXX  XXX
+          
+
+--- Glyph #18 (0x12) ---
+          
+  .....   
+   X.XXX  
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+  .....   
+   XXXXX  
+          
+
+--- Glyph #19 (0x13) ---
+          
+    ..... 
+     X.XXX
+      .X  
+      .X  
+      .X  
+      .X  
+      .X  
+ .    .X  
+ .    .X  
+ o.  .oX  
+  o..oXX  
+   XXXX   
+          
+
+--- Glyph #20 (0x14) ---
+          
+...  ...  
+ .XX  .XX 
+ .X  .XX  
+ .X .XX   
+ .X.oX    
+ ..X.     
+ .XXoo    
+ .X X.    
+ .X  oo   
+ .X  X.   
+...  .... 
+ XXX  XXXX
+          
+
+--- Glyph #21 (0x15) ---
+          
+ ...      
+  .XX     
+  .X      
+  .X      
+  .X      
+  .X      
+  .X      
+  .X      
+  .X   .  
+  .X   .X 
+ .......X 
+  XXXXXXX 
+          
+
+--- Glyph #22 (0x16) ---
+          
+...   ... 
+ .oo oo.XX
+ .X.X.X.X 
+ .X.X.X.X 
+ .XoooX.X 
+ .X .XX.X 
+ .X .X .X 
+ .X  X .X 
+ .X    .X 
+ .X    .X 
+...   ... 
+ XXX   XXX
+          
+
+--- Glyph #23 (0x17) ---
+          
+..o   ... 
+ ..X   .XX
+ .oo   .X 
+ .X.X  .X 
+ .Xoo  .X 
+ .X .X .X 
+ .X oo .X 
+ .X  .X.X 
+ .X  oo.X 
+ .X   ..X 
+...   o.X 
+ XXX   XX 
+          
+
+--- Glyph #24 (0x18) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX  X.X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X   X.X 
+ o.X X.oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #25 (0x19) ---
+          
+ .....o   
+  .XXX.o  
+  .X  X.  
+  .X   .X 
+  .X   .X 
+  .X  .oX 
+  ....oX  
+  .XXXX   
+  .X      
+  .X      
+ ...      
+  XXX     
+          
+
+--- Glyph #26 (0x1a) ---
+          
+  o...o   
+ o.XXX.o  
+ .XX   .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ .X .  .X 
+ .X  .o.X 
+ o.X  .oX 
+  o...Xo. 
+   XXXX XX
+          
+
+--- Glyph #27 (0x1b) ---
+          
+ .....o   
+  .XXX.o  
+  .X  X.X 
+  .X   .X 
+  .X   .X 
+  .X  .oX 
+  ....oXX 
+  .X.oXX  
+  .X .o   
+  .X  .o  
+ ...   o. 
+  XXX   XX
+          
+
+--- Glyph #28 (0x1c) ---
+          
+  o..o .  
+ o.XXo..X 
+ .XX  o.X 
+ .X    .X 
+ o.     X 
+  o...o   
+   XXX.o  
+ .    X.X 
+ .X   X.X 
+o.oX X.oX 
+.Xo...oXX 
+ XXXXXXX  
+          
+
+--- Glyph #29 (0x1d) ---
+          
+ .......  
+ .XX.XX.X 
+ .X .X .X 
+  X .X  X 
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+   ...    
+    XXX   
+          
+
+--- Glyph #30 (0x1e) ---
+          
+ ...  ... 
+  .XX  .XX
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  o.X .oX 
+   o..oXX 
+    XXXX  
+          
+
+--- Glyph #31 (0x1f) ---
+          
+...   ... 
+ .XX   .XX
+ .X   X.X 
+ oo   ooX 
+ X.X  .XX 
+  .X X.X  
+  oo ooX  
+  X.X.XX  
+   .X.X   
+   oooX   
+   X.XX   
+     X    
+          
+
+--- Glyph #32 (0x20) ---
+          
+.   .   . 
+.X  .X  .X
+.X  .X  .X
+oo ooo ooX
+ .X.X.X.XX
+ .X.X.X.X 
+ .X.X.X.X 
+ oooXoooX 
+  .XX .XX 
+  .X  .X  
+  .X  .X  
+   X   X  
+          
+
+--- Glyph #33 (0x21) ---
+          
+ ...  ... 
+  .XX  .XX
+  oo  ooX 
+  X.X .XX 
+   ooooX  
+   X..XX  
+   oooo   
+  X.XX.X  
+  ooX oo  
+ X.XX  .X 
+ ...  ... 
+  XXX  XXX
+          
+
+--- Glyph #34 (0x22) ---
+          
+...   ... 
+ .XX   .XX
+ oo   ooX 
+ X.X X.XX 
+  oo ooX  
+  X.X.XX  
+   o.oX   
+   X.XX   
+    .X    
+    .X    
+   ...    
+    XXX   
+          
+
+--- Glyph #35 (0x23) ---
+          
+ .......  
+ .XXXX.XX 
+ .X  ooX  
+  X X.XX  
+    ooX   
+   X.XX   
+   ooX    
+  X.XX    
+  ooX  .  
+ X.XX  .X 
+ .......X 
+  XXXXXXX 
+          
+
+--- Glyph #36 (0x24) ---
+          
+          
+          
+          
+  o...o   
+ .oXXXoo  
+  XX   .X 
+  o.....X 
+ ooXXXX.X 
+ .XX   .X 
+ oo  o..X 
+  o..oXo. 
+   XXXXXXX
+          
+
+--- Glyph #37 (0x25) ---
+          
+ .        
+..X       
+ .X       
+ .X       
+ .oo..o   
+ ..XXXoo  
+ .XX  X.X 
+ .X    .X 
+ .X    .X 
+ .o   .oX 
+ .o...oXX 
+  XXXXXX  
+          
+
+--- Glyph #38 (0x26) ---
+          
+          
+          
+          
+  o..oX.  
+ ooXXo..X 
+ .XX  o.X 
+ .X     X 
+ .X       
+ .X    .  
+ oo   .oX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #39 (0x27) ---
+          
+     .o   
+      ..  
+      .XX 
+      .X  
+  o....X  
+ ooXXX.X  
+ .XX  .X  
+ .X   .X  
+ .X   .X  
+ oo  ooo  
+  o..oXo. 
+   XXXXXXX
+          
+
+--- Glyph #40 (0x28) ---
+          
+          
+          
+          
+  o...o   
+ ooXXXoo  
+ .XX   .X 
+ .......X 
+ .XXXXXXX 
+ .X       
+ oo   o.  
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #41 (0x29) ---
+          
+     o..  
+    ooXXX 
+    .XX   
+    .X    
+ .......  
+  XX.XXXX 
+    .X    
+    .X    
+    .X    
+    .X    
+   ...    
+    XXX   
+          
+
+--- Glyph #42 (0x2a) ---
+          
+          
+          
+          
+  o...o . 
+ ooXXXoooX
+ .XX  X.XX
+ .X    .X 
+ oo   o.X 
+  o...o.X 
+   XXXX.X 
+ .o   .oX 
+  o...oXX 
+   XXXXX  
+
+--- Glyph #43 (0x2b) ---
+          
+  .       
+ ..X      
+  .X      
+  .X..o   
+  ..XXoo  
+  .XX  .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+  .X   .X 
+ ...  ... 
+  XXX  XXX
+          
+
+--- Glyph #44 (0x2c) ---
+          
+    .     
+    .X    
+     X    
+          
+    .     
+   ..X    
+    .X    
+    .X    
+    .X    
+    .X    
+  .....   
+   XXXXX  
+          
+
+--- Glyph #45 (0x2d) ---
+          
+      .   
+      .X  
+       X  
+          
+      .   
+     ..X  
+      .X  
+      .X  
+ .    .X  
+ .X  X.X  
+ ooXXooX  
+  o..oXX  
+   XXXX   
+
+--- Glyph #46 (0x2e) ---
+          
+  .       
+ ..X      
+  .X   .  
+  .X  .XX 
+  .X .XX  
+  .X..X   
+  ..Xoo   
+  .XX .X  
+  .X  oo  
+  .X   .X 
+ ...  ... 
+  XXX  XXX
+          
+
+--- Glyph #47 (0x2f) ---
+          
+   .o     
+   X.X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+    .X    
+  .....   
+   XXXXX  
+          
+
+--- Glyph #48 (0x30) ---
+          
+          
+          
+          
+.o.o o.o  
+ .Xo.oX.X 
+ .X .X .X 
+ .X .X .X 
+ .X .X .X 
+ .X .X .X 
+ .X .X .X 
+ .X .X o. 
+  X  X  XX
+          
+
+--- Glyph #49 (0x31) ---
+          
+          
+          
+          
+  . o.o   
+ ..ooXoo  
+  ..XXX.X 
+  .XX  .X 
+  .X   .X 
+  .X   .X 
+  .X   oo 
+  .X   X.X
+   X     X
+          
+
+--- Glyph #50 (0x32) ---
+          
+          
+          
+          
+  o...o   
+ ooXXXoo  
+ .XX   .X 
+ .X    .X 
+ .X    .X 
+ .X    .X 
+ oo   ooX 
+  o...oXX 
+   XXXXX  
+          
+
+--- Glyph #51 (0x33) ---
+          
+          
+          
+          
+ .....o   
+  .XXXoo  
+  .X   .X 
+  .X   .X 
+  .X  ooX 
+  ....oXX 
+  .XXXXX  
+  .X      
+ ...      
+  XXX     
+
+--- Glyph #52 (0x34) ---
+          
+          
+          
+          
+  o...o . 
+ ooXXXoooX
+ .XX   .XX
+ .X    .X 
+ oo   ..X 
+  o...o.X 
+  XXXXX.X 
+       .X 
+      ... 
+       XXX
+
+--- Glyph #53 (0x35) ---
+          
+          
+          
+          
+ . o..o   
+ oooXXoo  
+ X.XX  .X 
+  .X   .X 
+  .X    X 
+  .X      
+  .X      
+ ...      
+  XXX     
+          
+
+--- Glyph #54 (0x36) ---
+          
+          
+          
+          
+  o..o .  
+  .XXo..X 
+  .X  XXX 
+  o...o   
+   XXXoo  
+ .    X.X 
+ ..o XooX 
+ .Xo..oXX 
+  XXXXXX  
+          
+
+--- Glyph #55 (0x37) ---
+          
+   .      
+   .X     
+   .X     
+ ......   
+ XX.XXXX  
+   .X     
+   .X     
+   .X     
+   .X     
+   oo  .  
+    o..XX 
+     XXX  
+          
+
+--- Glyph #56 (0x38) ---
+          
+          
+          
+          
+ .    .   
+..X   .X  
+ .X   .X  
+ .X   .X  
+ .X   .X  
+ .X  X.X  
+ ooX ooo  
+ Xo..oX.X 
+   XXXX X 
+          
+
+--- Glyph #57 (0x39) ---
+          
+          
+          
+          
+ .     .  
+ .X    .X 
+ oo   ooX 
+ X.X  .XX 
+  oo ooX  
+  X.X.XX  
+   oooX   
+    .XX   
+     X    
+          
+
+--- Glyph #58 (0x3a) ---
+          
+          
+          
+          
+.   .   . 
+.X X.X X.X
+oo ooo ooX
+X.X.X.X.XX
+ .X.X.X.X 
+ oooXoooX 
+ X.XX .XX 
+  .X  .X  
+   X   X  
+          
+
+--- Glyph #59 (0x3b) ---
+          
+          
+          
+          
+ ...  ... 
+  .XX  .XX
+   .X .XX 
+    o.XX  
+    .oX   
+   .XX.   
+  .XX  .  
+ ...  ... 
+  XXX  XXX
+          
+
+--- Glyph #60 (0x3c) ---
+          
+          
+          
+          
+...   ... 
+ .XX   .XX
+ oo   ooX 
+  .X  .XX 
+  ooXooX  
+   .X.XX  
+    .XX   
+   ooX    
+ ..oXX    
+  XXX     
+
+--- Glyph #61 (0x3d) ---
+          
+          
+          
+          
+ .......  
+ .XXXX.XX 
+  X  .XX  
+    .XX   
+   .XX    
+  .XX  .  
+ .XX   .X 
+ .......X 
+  XXXXXXX 
+          
+
+--- Glyph #62 (0x3e) ---
+          
+          
+          
+          
+   .      
+ ......   
+  X.XXXX  
+   ....   
+  ..X.X.  
+ .X..oX.X 
+ .X.oXooX 
+  .oX.oXX 
+   XX XX  
+          
+
+--- Glyph #63 (0x3f) ---
+          
+   .      
+   .X     
+........  
+ XX.XX.XX 
+   ....o  
+  ..Xoo.o 
+ .X.X.XX.X
+.XX.X.X .X
+.X .ooX .X
+ooX..XXooX
+ o.oXX.oXX
+  XXX  XX 
+          
+
+--- Glyph #64 (0x40) ---
+          
+          
+          
+          
+ .        
+ .X   .   
+ .X   oo  
+ .X   X.X 
+ .X    .X 
+ .X.   .X 
+ oooX  .X 
+  .XX   X 
+   X      
+          
+
+--- Glyph #65 (0x41) ---
+          
+          
+ .        
+ooX   .   
+.XX   oo  
+.XX   X.X 
+.X     ooX
+.X     X.X
+oo      .X
+X.X     .X
+ ooX.    X
+ Xo.oX    
+   XX     
+          
+
+--- Glyph #66 (0x42) ---
+          
+          
+          
+   .o     
+    o.    
+     XX   
+   o..o   
+  .oXXoo  
+   XX  .X 
+       .X 
+      ooX 
+   ...oXX 
+    XXXX  
+          
+
+--- Glyph #67 (0x43) ---
+          
+  .o      
+   o..    
+    XXX   
+  o..o    
+..oXXo.   
+ XXX  X.  
+       .X 
+       .X 
+      ooX 
+     o.XX 
+  ...oXX  
+   XXXX   
+          
+
+--- Glyph #68 (0x44) ---
+          
+          
+          
+          
+   .o     
+    o.    
+  .....   
+   XXX.X  
+     .XX  
+    .oX   
+   .X.X   
+  .XXo..  
+   X  XXX 
+          
+
+--- Glyph #69 (0x45) ---
+          
+  .o      
+   o..    
+    XXX   
+   o..o   
+ ..oXX.X  
+  XXX.XX  
+    .XX   
+   ..o    
+  .XX.X   
+ .oX .Xo. 
+.oXX o.oXX
+ XX   XXX 
+          
+
+--- Glyph #70 (0x46) ---
+          
+          
+          
+  .       
+  .X ..   
+ ...  o.  
+  .XX  XX 
+  .o...   
+ o.oXXo.  
+ ..X   .X 
+ ..X   .X 
+ o.X ..oX 
+  XX  XX  
+          
+
+--- Glyph #71 (0x47) ---
+          
+  .       
+  .X  .   
+  ... o.  
+...XXX .X 
+ X.X    X 
+  ....o   
+ ..XXX.o  
+oo.X  X.X 
+.X.X   .X 
+.X.X  ooX 
+ .oX .oXX 
+  XX  XX  
+          
+
+--- Glyph #72 (0x48) ---
+          
+  .       
+  .X      
+  .X  .   
+.....XX.  
+ X.XX.Xoo 
+ ooX .XX.X
+ .XX .X .X
+X.X  .X  X
+ooX  .X   
+.XX X.X   
+.X ..oX   
+ X  XX    
+          
+
+--- Glyph #73 (0x49) ---
+      . . 
+  .   .X.X
+  .X   X X
+  .X  .   
+.....XX.  
+ X.XX.Xoo 
+ ooX .XX.X
+ .XX .X .X
+ .X  .X  X
+ooX  .X   
+.XX  .X   
+.X ..oX   
+ X  XX    
+          
+
+--- Glyph #74 (0x4a) ---
+          
+  .       
+  oo  .   
+   ...XX  
+....oXX.  
+  XX...XX 
+ ....oXX  
+   XX.X   
+ .....o   
+.XXXXX.X  
+.o     X  
+ o....    
+  XXXXX   
+          
+
+--- Glyph #75 (0x4b) ---
+      . . 
+  .   .X.X
+  oo   X X
+   ...XX  
+....oXX.  
+  XX...XX 
+ ....oXX  
+   XX.X   
+ .....o   
+.XXXXX.X  
+.o     X  
+ o....    
+  XXXXX   
+          
+
+--- Glyph #76 (0x4c) ---
+          
+     .    
+    ooX   
+   X.XX   
+  X.XX    
+  .XX     
+ .XX      
+ o.       
+  X.X     
+   X.o    
+    X.o   
+     X.X  
+      XX  
+          
+
+--- Glyph #77 (0x4d) ---
+          
+     .    
+    ooX   
+   X.X. . 
+  X.XX.X.X
+  .XX  X X
+ .XX      
+ o.       
+  X.X     
+   X.o    
+    X.o   
+     X.X  
+      XX  
+          
+
+--- Glyph #78 (0x4e) ---
+          
+      .   
+ .    .X  
+ooX   .X  
+.XX.....o 
+.X  XX.XX 
+.X    .X  
+.X    .X  
+.X.   .X  
+oooX ooX  
+ .XX .XX  
+  X .XX   
+     X    
+          
+
+--- Glyph #79 (0x4f) ---
+      . . 
+      .X.X
+ .    oX X
+ooX   .X  
+.XX.....o 
+.X  XX.XX 
+.X    .X  
+.X    .X  
+.X.   .X  
+oooX ooX  
+ .XX .XX  
+  X .XX   
+     X    
+          
+
+--- Glyph #80 (0x50) ---
+          
+          
+ ...oX    
+  XXo..   
+    .oXX  
+     XX   
+          
+          
+ .        
+.XX       
+.o   Xo.  
+ .....oXX 
+  XXXXXX  
+          
+
+--- Glyph #81 (0x51) ---
+      . . 
+      .X.X
+ ...oX X X
+  XXo..   
+    .oXX  
+     XX   
+          
+          
+ .        
+.XX       
+.o   Xo.  
+ .....oXX 
+  XXXXXX  
+          
+
+--- Glyph #82 (0x52) ---
+          
+   .      
+   o.X    
+    o...  
+......XXX 
+ XXXXoo   
+      .X  
+  o....o  
+ ooXXXX.X 
+ .X     X 
+ o.       
+  o....   
+   XXXXX  
+          
+
+--- Glyph #83 (0x53) ---
+      . . 
+   .  . . 
+   o.X    
+    o...  
+......XXX 
+ XXXXoo   
+      .X  
+  o....o  
+ ooXXXX.X 
+ .X     X 
+ o.       
+  o....   
+   XXXXX  
+          
+
+--- Glyph #84 (0x54) ---
+          
+ .        
+ .X       
+ .X       
+ .X       
+ .X       
+ .X       
+ .X       
+ .X    .  
+ .X    .X 
+ ooX  ooX 
+  o...oX  
+   XXXX   
+          
+
+--- Glyph #85 (0x55) ---
+          
+ .        
+ .X  . .  
+ .X  .X.X 
+ .X   X X 
+ .X       
+ .X       
+ .X       
+ .X    .  
+ .X    .X 
+ ooX  ooX 
+  o...oX  
+   XXXX   
+          
+
+--- Glyph #86 (0x56) ---
+          
+      .   
+      .X  
+ ........ 
+  XXXX.XXX
+  X....X  
+  .XXX.X  
+  .X  .X  
+  X....X  
+    XX.X  
+     ooX  
+   ..oXX  
+    XXX   
+          
+
+--- Glyph #87 (0x57) ---
+     . .X 
+     o.X.X
+      .X X
+ ........ 
+  XXXX.XXX
+  X....X  
+  .XXX.X  
+  .X  .X  
+  X....X  
+    XX.X  
+     ooX  
+   ..oXX  
+    XXX   
+          
+
+--- Glyph #88 (0x58) ---
+          
+      .   
+  .   .X  
+  .X  .X  
+  .X  ... 
+  .....XXX
+...XXX.X  
+ X.X  .X  
+  .X .oX  
+  .X  XX  
+  ooX     
+   o....  
+    XXXXX 
+          
+
+--- Glyph #89 (0x59) ---
+     . .  
+     .o.X 
+  .   .XX 
+  .X  .X  
+  .X  ... 
+  .....XXX
+...XXX.X  
+ X.X  .X  
+  .X .oX  
+  .X  XX  
+  ooX     
+   o....  
+    XXXXX 
+          
+
+--- Glyph #90 (0x5a) ---
+          
+          
+  ....o   
+   XXX.X  
+    o.XX  
+  o.oXX   
+........  
+ XXX.oXXX 
+   .XXX   
+  .XX     
+  .X      
+  X....   
+   XXXXX  
+          
+
+--- Glyph #91 (0x5b) ---
+      . . 
+      .X.X
+  ....oX X
+   XXX.X  
+    o.XX  
+  o.oXX   
+........  
+ XXX.oXXX 
+   .XXX   
+  .XX     
+  .X      
+  X....   
+   XXXXX  
+          
+
+--- Glyph #92 (0x5c) ---
+          
+   .      
+   .X     
+   .X     
+......    
+ X.oXXX   
+  .XX...o 
+  .X  XX.X
+ X.X     X
+ ooX      
+ .XX.     
+ .X o.... 
+  X  XXXXX
+          
+
+--- Glyph #93 (0x5d) ---
+          
+   .  . . 
+   .X .X.X
+   .X  X X
+......    
+ X.oXXX   
+  .XX...o 
+  .X  XX.X
+ X.X     X
+ ooX      
+ .XX.     
+ .X o.... 
+  X  XXXXX
+          
+
+--- Glyph #94 (0x5e) ---
+          
+   .      
+   .X     
+  o.....  
+...oXXXXX 
+ X.XX     
+ o....o   
+ .XXXXoo  
+  X    .X 
+       .X 
+      ooX 
+  ....oXX 
+   XXXXX  
+          
+
+--- Glyph #95 (0x5f) ---
+   Xo..   
+ ...oXXX  
+  X.X     
+o......o  
+.XX.XXX.X 
+.X .X  .X 
+.X .X  .X 
+o......oX 
+ X.X.X.XX 
+  .X.X.X  
+ ooX.X X. 
+.oX o...XX
+ X   XXXX 
+          
+
+--- Glyph #96 (0x60) ---
+          
+          
+          
+          
+          
+   o..o   
+ ..oXXoo  
+  XXX  .X 
+       .X 
+       .X 
+      ooX 
+   ...oXX 
+    XXXX  
+          
+
+--- Glyph #97 (0x61) ---
+          
+          
+          
+ Xo..o    
+..oXXo.   
+ XXX  oo  
+       .X 
+       .X 
+      X.X 
+      ooX 
+     o.XX 
+  ...oXX  
+   XXXX   
+          
+
+--- Glyph #98 (0x62) ---
+          
+      . . 
+      .X.X
+ Xo..o X X
+..oXXo.   
+ XXX  oo  
+       .X 
+       .X 
+      X.X 
+      ooX 
+     o.XX 
+  ...oXX  
+   XXXX   
+          
+
+--- Glyph #99 (0x63) ---
+          
+          
+  Xo....  
+...oXo.XX 
+ XXX.oXX  
+   .XXX   
+  ooX     
+  .X      
+  .X      
+  .X      
+  X.o     
+   Xo..   
+     XXX  
+          
+
+--- Glyph #100 (0x64) ---
+          
+          
+   o....  
+...oXo.XX 
+ XXX.oXX  
+   .XX. . 
+  ooX .X.X
+  .X   X X
+  .X      
+  .X      
+  X.o     
+   Xo..   
+     XXX  
+          
+
+--- Glyph #101 (0x65) ---
+          
+          
+  .       
+  .X      
+  oo  o.  
+   .o.oXX 
+   .oXXX  
+  .XXX    
+ .XX      
+ .X       
+ .o       
+  ......  
+   XXXXXX 
+          
+
+--- Glyph #102 (0x66) ---
+          
+      . . 
+  .   .X.X
+  .X   X X
+  oo  o.  
+   .o.oXX 
+   .oXXX  
+  .XXX    
+ .XX      
+ .X       
+ .o       
+  ......  
+   XXXXXX 
+          
+
+--- Glyph #103 (0x67) ---
+          
+  .       
+  .X      
+ X.X  .o  
+.....  oo 
+ .XXXX  .X
+X.   .   X
+oo   .X   
+.XX...X   
+.X.XX..   
+ X.X .X.  
+   ..XXXX 
+    XX    
+          
+
+--- Glyph #104 (0x68) ---
+          
+          
+X.        
+ooX ...o  
+.X   XX.X 
+.X      X 
+.X        
+.X X.     
+.X .XX    
+.X .X     
+oo o....  
+ .X XXXXX 
+  X       
+          
+
+--- Glyph #105 (0x69) ---
+          
+    .     
+ .  .X    
+ .X .X    
+ .X...o   
+ ..X.Xoo  
+X.XooXX.X 
+ooo.XX .X 
+.X..X  .X 
+.X.oX...X 
+.X.X.XX.. 
+ .oX ..oXX
+  XX  XXX 
+          
+
+--- Glyph #106 (0x6a) ---
+          
+  .       
+  .X      
+  .Xo.o   
+....oXoo  
+ X.oX X.X 
+  .X   .X 
+ o.X   .X 
+ ..X ...X 
+oo.X.XX.o 
+.X.X.X ..X
+ X.X ..XXX
+   X  XX  
+          
+
+--- Glyph #107 (0x6b) ---
+          
+          
+  o...    
+ .oX.X.   
+ooX .Xoo  
+.XX .XX.X 
+.X ooX .X 
+.X .X  .X 
+.X .X  .X 
+.XooX ooX 
+ .oXXo.XX 
+  XX.oXX  
+     XX   
+          
+
+--- Glyph #108 (0x6c) ---
+          
+ .    .   
+X.X   .X  
+ooX   .X  
+.XX...... 
+.X  XX.XXX
+.X    .X  
+.X    .X  
+.X o...X  
+.X .XX.o  
+ooX.X ... 
+ .Xo..oXXX
+  X XXXX  
+          
+
+--- Glyph #109 (0x6d) ---
+       . .
+ .    ..X.
+X.X   .XXX
+ooX   .X  
+.XX...... 
+.X  XX.XXX
+.X    .X  
+.X    .X  
+.X o...X  
+.X .XX.o  
+ooX.X ... 
+ .Xo..oXXX
+  X XXXX  
+          
+
+--- Glyph #110 (0x6e) ---
+      o.o 
+ .    . .X
+X.X   o.oX
+ooX   .XX 
+.XX...... 
+.X  XX.XXX
+.X    .X  
+.X    .X  
+.X o...X  
+.X .XX.o  
+ooX.X ... 
+ .Xo..oXXX
+  X XXXX  
+          
+
+--- Glyph #111 (0x6f) ---
+          
+   .      
+ X..X .   
+...oX .o  
+ X.X  ..  
+ ooX  .oo 
+ .XX  .X.X
+ .X   .X X
+ .X   .X  
+ .X  X.X  
+ oo XooX  
+  o..oXX  
+   XXXX   
+          
+
+--- Glyph #112 (0x70) ---
+      . . 
+   .  .X.X
+ X..X oX X
+...oX .o  
+ X.X  ..  
+ ooX  .oo 
+ .XX  .X.X
+ .X   .X X
+ .X   .X  
+ .X  X.X  
+ oo XooX  
+  o..oXX  
+   XXXX   
+          
+
+--- Glyph #113 (0x71) ---
+      o.o 
+   .  . .X
+ X..X o.oX
+...oX .oX 
+ X.X  ..  
+ ooX  .oo 
+ .XX  .X.X
+ .X   .X X
+ .X   .X  
+ .X  X.X  
+ oo XooX  
+  o..oXX  
+   XXXX   
+          
+
+--- Glyph #114 (0x72) ---
+          
+  ...o    
+   XX.X   
+    .XX   
+     X    
+   .      
+ . .o .   
+ .XX.X .  
+o.X ooXoo 
+.oX  .XX.X
+.X. X.X .X
+ Xo..oX  X
+   XXX    
+          
+
+--- Glyph #115 (0x73) ---
+      . . 
+  ...o.X.X
+   XX.XX X
+    .XX   
+     X    
+   .      
+ . .o .   
+ .XX.X .  
+o.X ooXoo 
+.oX  .XX.X
+.X. X.X .X
+ Xo..oX  X
+   XXX    
+          
+
+--- Glyph #116 (0x74) ---
+          
+  ...o    
+   XX.o.o 
+    .X. .X
+     Xo.oX
+   .   XX 
+ . .o .   
+ .XX.X .  
+o.X ooXoo 
+.oX  .XX.X
+.X. X.X .X
+ Xo..oX  X
+   XXX    
+          
+
+--- Glyph #117 (0x75) ---
+          
+          
+  .X      
+ X.o      
+ oo.X     
+X.Xoo     
+ooX .o    
+.XX  .o   
+.X    .o  
+ X     .o 
+        .X
+         X
+          
+          
+
+--- Glyph #118 (0x76) ---
+          
+          
+  .X . .  
+ X.o .X.X 
+ oo.X X X 
+X.Xoo     
+ooX .o    
+.XX  .o   
+.X    .o  
+ X     .o 
+        .X
+         X
+          
+          
+
+--- Glyph #119 (0x77) ---
+          
+     o.o  
+  .X . .X 
+ X.o o.oX 
+ oo.X XX  
+X.Xoo     
+ooX .o    
+.XX  .o   
+.X    .o  
+ X     .o 
+        .X
+         X
+          
+          

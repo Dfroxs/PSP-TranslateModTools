@@ -1,0 +1,18 @@
+[project]
+name = "psp-modtool"
+version = "1.0.0"
+description = "Tool untuk extract, scan, terjemahkan, dan repack ISO PSP"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+keywords = ["psp", "iso", "modding", "translation", "localization"]
+
+[project.scripts]
+psp-modtool = "psp_modtool.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["psp_modtool*"]

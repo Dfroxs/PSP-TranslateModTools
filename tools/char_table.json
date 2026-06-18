@@ -1,0 +1,52 @@
+{
+  "format": "fft-wotl-psp-v1",
+  "font": "FONT.BIN",
+  "glyph_size": [10, 14],
+  "bpp": 2,
+  "bytes_per_glyph": 35,
+  "order": "msb",
+  "total_glyphs": 2223,
+  "description": "Character table FFT WoTL PSP. Key = glyph index (decimal byte value), value = Unicode char.",
+  "notes": [
+    "VERIFIED dari dekode opening scene FFT WoTL (offset 0x58c0 di TEST.EVT):",
+    "  'Father, abandon not Your wayward children of Ivalice...'",
+    "  'Lady Ovelia, it is time.' / 'I''ll not be much longer, Agrias.' dll",
+    "Single-byte chars:",
+    "  0x00-0x3D = digit + A-Z + a-z (62 chars, dari visual font + freq byte)",
+    "  0x40 = '?', 0x5f = '.', 0x93 = ''', 0x95 = ' ' (space)",
+    "  0xfe = end-of-string / line break",
+    "Multi-byte control sequences (BELUM dipecahkan semua):",
+    "  0xda 0x74 = ',' (comma)",
+    "  0xe3 0x08 = speaker tag start",
+    "  0xe2 0x02 = paragraph start (prayer)",
+    "  0xf8 = soft line break dalam bubble"
+  ],
+  "mapping": {
+    "0": "0", "1": "1", "2": "2", "3": "3", "4": "4",
+    "5": "5", "6": "6", "7": "7", "8": "8", "9": "9",
+    "10": "A", "11": "B", "12": "C", "13": "D", "14": "E",
+    "15": "F", "16": "G", "17": "H", "18": "I", "19": "J",
+    "20": "K", "21": "L", "22": "M", "23": "N", "24": "O",
+    "25": "P", "26": "Q", "27": "R", "28": "S", "29": "T",
+    "30": "U", "31": "V", "32": "W", "33": "X", "34": "Y",
+    "35": "Z",
+    "36": "a", "37": "b", "38": "c", "39": "d", "40": "e",
+    "41": "f", "42": "g", "43": "h", "44": "i", "45": "j",
+    "46": "k", "47": "l", "48": "m", "49": "n", "50": "o",
+    "51": "p", "52": "q", "53": "r", "54": "s", "55": "t",
+    "56": "u", "57": "v", "58": "w", "59": "x", "60": "y",
+    "61": "z",
+    "62": "!",
+    "64": "?",
+    "95": ".",
+    "147": "'",
+    "149": " ",
+    "254": "\n"
+  },
+  "multibyte": {
+    "da74": ",",
+    "d11d": "-",
+    "e308": "<SPEAKER>",
+    "e202": "<PRAYER>"
+  }
+}
