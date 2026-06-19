@@ -18,3 +18,15 @@ tools/font_renders/
 # Translation outputs (regenerable + user-specific)
 tools/translation_sample.json
 tools/translation_workspace/
+
+# Test artifacts dari development
+tools/*_trans.json
+tools/*_test.json
+tools/identity_*.json
+tools/multi_trans.json
+tools/prayer_trans.json
+tools/progress_test.json
+tools/stretch_test.json
+tools/test_translation.json
+tools/e2e_trans.json
+tools/empty_trans.json

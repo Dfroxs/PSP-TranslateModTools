@@ -1,0 +1,50 @@
+{
+  "fftpack_path": "/Users/dfroxs/Playground/Python/PspModTools/extracted/PSP_GAME/USRDIR/fftpack.bin",
+  "fftpack_size": 220930048,
+  "files": {
+    "TEST.EVT": {
+      "offset": 3545088,
+      "size": 7618560
+    },
+    "WORLD.LZW": {
+      "offset": 14333952,
+      "size": 81920
+    },
+    "ATCHELP.LZW": {
+      "offset": 14168064,
+      "size": 131072
+    },
+    "OPEN.LZW": {
+      "offset": 14415872,
+      "size": 26624
+    },
+    "HELP.LZW": {
+      "offset": 1968944,
+      "size": 65536,
+      "note": "partial"
+    },
+    "WLDHELP.LZW": {
+      "offset": 14520320,
+      "size": 83968
+    },
+    "JOIN.LZW": {
+      "offset": 1887776,
+      "size": 12288,
+      "note": "partial"
+    },
+    "SAMPLE.LZW": {
+      "offset": 1401236,
+      "size": 16384,
+      "note": "partial"
+    },
+    "FONT.BIN": {
+      "offset": 1324236,
+      "size": 77824,
+      "note": "partial"
+    },
+    "SPELL.MES": {
+      "offset": 14299136,
+      "size": 18432
+    }
+  }
+}

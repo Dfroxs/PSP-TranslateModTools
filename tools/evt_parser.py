@@ -111,8 +111,12 @@ def find_bubbles(
                     speaker = decode(
                         name_bytes, mapping, multibyte, annotate_unknown=True
                     ).strip()
+                # IMPORTANT: skip_padding=False supaya byte 0x00 di tengah text
+                # (yang part of encoding) tetap muncul sebagai <00> dan bisa
+                # di-roundtrip perfectly via encode_evt.py.
                 text = decode(
-                    real_chunk[:-1], mapping, multibyte, annotate_unknown=True
+                    real_chunk[:-1], mapping, multibyte,
+                    skip_padding=False, annotate_unknown=True
                 )
                 bubbles.append(
                     {
