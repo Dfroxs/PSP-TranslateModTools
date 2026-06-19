@@ -43,37 +43,24 @@ def _extract_speaker_from_text(text: str) -> str | None:
 
 
 def extract_dialog_blocks(events_parsed: dict, filter_quality: bool = False) -> list[dict]:
-    """Ekstrak semua text bubbles dengan stable block_id.
+    """Ekstrak semua bubble translatable dengan stable block_id.
 
-    Speaker logic:
-      - Pertama coba bubble['speaker'] (kalau parser sudah extract)
-      - Kalau text starts dengan <SPEAKER>X<f8><e3>, extract X
-      - Kalau previous bubble di event sama adalah kind='speaker', pakai namanya
+    Block ID HARUS match dengan repack_evt.py yang iterate kind ∈ {text, narration, speaker}.
+    Skip kind='untranslated' (Japanese remnant, tidak relevan di EN build).
     """
     blocks = []
     block_id = 0
+    translatable_kinds = {'text', 'narration', 'speaker'}
 
     for event in events_parsed.get('events', []):
         event_id = event.get('event_id')
-        last_speaker_in_event = None
         for bubble in event.get('bubbles', []):
             kind = bubble.get('kind')
-
-            if kind == 'speaker':
-                last_speaker_in_event = bubble.get('speaker') or _extract_speaker_from_text(
-                    bubble.get('text', ''))
-                continue
-
-            if kind != 'text':
+            if kind not in translatable_kinds:
                 continue
 
             text = bubble.get('text', '')
-            # Only set speaker if explicit, OR if last_speaker is recent AND
-            # text doesn't look like new utterance (no leading <SPEAKER>)
             speaker = bubble.get('speaker') or _extract_speaker_from_text(text)
-            # Don't auto-propagate last_speaker_in_event (too noisy — same speaker
-            # tag can apply to many subsequent bubbles, but it's hard to know cutoff)
-            # Translator can re-derive from context if needed.
             byte_range = bubble.get('raw_byte_range', [None, None])
 
             # Apply quality filter (skip mostly-unmapped bubbles — likely bytecode region)
@@ -92,6 +79,7 @@ def extract_dialog_blocks(events_parsed: dict, filter_quality: bool = False) -> 
             blocks.append({
                 'id': block_id,
                 'event_id': event_id,
+                'kind': kind,
                 'en': text,
                 'speaker': speaker,
                 'byte_range': byte_range,

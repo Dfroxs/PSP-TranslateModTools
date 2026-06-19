@@ -98,12 +98,18 @@ def repack(
         'details': [],
     }
 
-    # Build bubble lookup by block_id (only "text" kind bubbles get IDs)
+    # Build bubble lookup by block_id.
+    # Include ALL bubble kinds yang bisa berisi text untuk player:
+    # - text: dialog bubbles
+    # - narration: opening prayer + intros
+    # - speaker: speaker name tags
+    # Skip kind='untranslated' (Japanese remnant, probably tidak dipakai EN build).
     bubbles_by_id = {}
     block_id = 0
+    translatable_kinds = {'text', 'narration', 'speaker'}
     for event in events:
         for bubble in event.get('bubbles', []):
-            if bubble.get('kind') == 'text':
+            if bubble.get('kind') in translatable_kinds:
                 bubbles_by_id[block_id] = bubble
                 block_id += 1
 
