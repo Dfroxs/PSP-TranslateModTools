@@ -129,14 +129,45 @@ def load_system_prompt() -> str:
     return m.group(1).strip()
 
 
+def estimate_byte_length(text: str) -> int:
+    """Estimasi byte length untuk encoded text (close enough untuk Gemini constraint).
+
+    Heuristik: every char = 1 byte except:
+    - `<XX>` hex tag = 1 byte (collapses to single byte)
+    - `<SPEAKER>`, `<PRAYER>`, `<e0>` named tag = 1 byte each
+    - Multi-byte chars (`,` `—` `ú`) = 2 bytes
+    """
+    # Strip <XX> and named tags — each becomes 1 byte
+    stripped = re.sub(r'<[0-9a-fA-F]{2}>', '?', text)
+    stripped = re.sub(r'<[A-Z_][A-Z_0-9]*>', '?', stripped)
+    n = len(stripped)
+    # Add 1 byte for each multi-byte char
+    for ch in (',', '—', 'ú'):
+        n += stripped.count(ch)  # additional byte for these
+    return n
+
+
 def build_user_message(batch: list[dict[str, Any]]) -> str:
-    """Bikin user message: instruction + JSON array of {id, en}."""
-    items = [{'id': b['id'], 'en': b['en']} for b in batch]
+    """Bikin user message: instruction + JSON array of {id, en, max_bytes, speaker}."""
+    items = []
+    for b in batch:
+        en_bytes = estimate_byte_length(b['en'])
+        item = {
+            'id': b['id'],
+            'en': b['en'],
+            'max_bytes': en_bytes,  # CRITICAL: ID translation must NOT exceed this
+        }
+        if b.get('speaker'):
+            item['speaker'] = b['speaker']
+        items.append(item)
     js = json.dumps(items, ensure_ascii=False, indent=2)
     return (
-        'Translate the following dialog blocks. Respond with a JSON array in '
-        'the same order, same length. Preserve all control codes and proper '
+        'Translate the following dialog blocks EN→ID. Respond with a JSON array '
+        'in the same order, same length. Preserve all control codes and proper '
         'nouns per the rules.\n\n'
+        'CRITICAL: Each block has a `max_bytes` field. Your `id_text` must NOT '
+        'exceed `max_bytes` (estimate: 1 char ≈ 1 byte). Prefer shorter ID over '
+        'literal accuracy — overflow = block dropped from final patch.\n\n'
         f'{js}'
     )
 

@@ -86,9 +86,29 @@ the Lions* (PSP). Translate dialog text from English to **Bahasa Indonesia**.
    - Rogue, Highwayman, Brigand → rough, colloquial
    - Narrator / unknown   → neutral formal
 
-5. OUTPUT FORMAT (CRITICAL):
+5. BYTE BUDGET (CRITICAL — translations OVERFLOWING budget will be REJECTED):
+
+   Each block has a `max_bytes` field — the absolute maximum byte size the
+   Indonesian translation can occupy when encoded. The byte size is computed
+   by counting: each printable char = 1 byte, each `<XX>` tag = 1 byte,
+   multi-byte chars (`,` `—` `ú`) = 2 bytes.
+
+   Your `id_text` translation MUST fit within `max_bytes`. PREFERABLY be
+   SHORTER than the English original. Strategies to compact:
+     - Drop redundant words: "the", "a", "an" often unnecessary in ID
+     - Use shorter synonyms: "memperhatikan" → "lihat", "menyaksikan" → "lihat"
+     - Drop honorific markers when context clear: "Anda" → "kau"
+     - Shorter phrasing: "Anda harus" → "harus" (subject implied)
+     - Combine sentences with commas instead of full stops
+     - If still won't fit, paraphrase aggressively — meaning > literal
+
+   This is a HARD constraint: if your translation overflows, the patch won't
+   apply and the dialog will be SKIPPED entirely. Better a slightly less
+   elegant short ID than a perfect long one that gets dropped.
+
+6. OUTPUT FORMAT (CRITICAL):
    You will receive a JSON array of objects:
-     [{"id": 0, "en": "..."}, {"id": 1, "en": "..."}, ...]
+     [{"id": 0, "en": "...", "max_bytes": 100, "speaker": "..."}, ...]
 
    You MUST respond with a JSON array of objects in the SAME ORDER, same length:
      [{"id": 0, "id_text": "..."}, {"id": 1, "id_text": "..."}, ...]
