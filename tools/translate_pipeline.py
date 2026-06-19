@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -66,15 +67,35 @@ def run_step(label: str, cmd: list[str]) -> bool:
     return True
 
 
+# Token control-code di dalam teks decoded: <SPEAKER>, <PRAYER>, <e0>, <f8>,
+# <e3>, <xx> hex, dll. Semua ini WAJIB dipertahankan di id_final — kalau Gemini
+# membuangnya, nama speaker hilang / dialog rusak / pointer bergeser.
+CONTROL_TOKEN_RE = re.compile(r'<[^<>]+>')
+
+
+def _control_tokens(s: str):
+    """Multiset (Counter) dari semua token control-code <...> dalam string."""
+    from collections import Counter
+    return Counter(CONTROL_TOKEN_RE.findall(s))
+
+
 def validate_translation(trans_path: Path, proper_nouns_path: Path) -> dict:
-    """Quick validation: check proper nouns preserved, control codes intact."""
+    """Validasi: proper nouns preserved + control codes/<SPEAKER> tag intact.
+
+    Mengembalikan dict berisi:
+      - total_blocks, translated
+      - warnings        : proper-noun yang hilang (non-fatal)
+      - control_errors  : control-code yang hilang/berkurang di id_final (FATAL)
+    """
     trans = json.loads(trans_path.read_text())
     proper_nouns = json.loads(proper_nouns_path.read_text()) if proper_nouns_path.exists() else {}
     all_nouns = set(proper_nouns.get('all_unique', []))
 
     blocks = trans.get('blocks', trans) if isinstance(trans, dict) else trans
     warnings = []
-    info = {'total_blocks': len(blocks), 'translated': 0, 'warnings': []}
+    control_errors = []
+    info = {'total_blocks': len(blocks), 'translated': 0,
+            'warnings': [], 'control_errors': []}
 
     for block in blocks:
         if not isinstance(block, dict):
@@ -84,19 +105,32 @@ def validate_translation(trans_path: Path, proper_nouns_path: Path) -> dict:
         if not id_text:
             continue
         info['translated'] += 1
-
-        # Check proper nouns
         bid = block.get('id', '?')
+
+        # --- 1. Control-code / SPEAKER tag preservation (FATAL) ---
+        en_tok = _control_tokens(en)
+        id_tok = _control_tokens(id_text)
+        for tok, cnt in en_tok.items():
+            got = id_tok.get(tok, 0)
+            if got < cnt:
+                control_errors.append(
+                    f'  block#{bid}: control code {tok} hilang/berkurang '
+                    f'(en={cnt}, id={got})'
+                )
+        # SPEAKER bubble: id_final harus mulai dengan tag speaker yang sama
+        if en.startswith('<SPEAKER>') and not id_text.startswith('<SPEAKER>'):
+            control_errors.append(
+                f'  block#{bid}: id_final tidak diawali <SPEAKER> '
+                f'(nama speaker akan hilang in-game)'
+            )
+
+        # --- 2. Proper nouns (non-fatal warning) ---
         for noun in all_nouns:
             if len(noun) > 3 and noun in en and noun not in id_text:
                 warnings.append(f'  block#{bid}: proper noun "{noun}" missing in id_final')
-                if len(warnings) >= 10:
-                    warnings.append('  ... (more warnings truncated)')
-                    break
-        if len(warnings) >= 11:
-            break
 
     info['warnings'] = warnings
+    info['control_errors'] = control_errors
     return info
 
 
@@ -117,6 +151,9 @@ def main() -> int:
     ap.add_argument('--allow-stretch', action='store_true', default=True,
                     help='Extend ke trailing zeros kalau ada')
     ap.add_argument('--skip-validation', action='store_true')
+    ap.add_argument('--ignore-control-errors', action='store_true',
+                    help='Lanjut walau ada control-code/<SPEAKER> yang hilang '
+                         '(TIDAK disarankan — bisa bikin nama speaker hilang in-game)')
     args = ap.parse_args()
 
     # Verify required files
@@ -151,13 +188,29 @@ def main() -> int:
     if not args.skip_validation:
         print('=== Step 1: Validation ===', file=sys.stderr)
         info = validate_translation(args.translations, PROPER_NOUNS)
-        print(f'  Total blocks: {info["total_blocks"]}', file=sys.stderr)
-        print(f'  Translated  : {info["translated"]}', file=sys.stderr)
-        print(f'  Warnings    : {len(info["warnings"])}', file=sys.stderr)
+        print(f'  Total blocks  : {info["total_blocks"]}', file=sys.stderr)
+        print(f'  Translated    : {info["translated"]}', file=sys.stderr)
+        print(f'  Proper-noun warn: {len(info["warnings"])}', file=sys.stderr)
         for w in info['warnings'][:5]:
             print(w, file=sys.stderr)
         if len(info['warnings']) > 5:
             print(f'  ... +{len(info["warnings"]) - 5} more', file=sys.stderr)
+
+        # Control-code preservation = FATAL (kecuali di-override)
+        ctl = info.get('control_errors', [])
+        print(f'  Control-code err: {len(ctl)}', file=sys.stderr)
+        for e in ctl[:10]:
+            print(e, file=sys.stderr)
+        if len(ctl) > 10:
+            print(f'  ... +{len(ctl) - 10} more', file=sys.stderr)
+        if ctl and not args.ignore_control_errors:
+            print('\n❌ ABORT: ada control code/<SPEAKER> yang hilang di id_final.',
+                  file=sys.stderr)
+            print('   Perbaiki translasi (pertahankan <SPEAKER>, <f8>, <e0>, dll),',
+                  file=sys.stderr)
+            print('   atau paksa lanjut dengan --ignore-control-errors (berisiko).',
+                  file=sys.stderr)
+            return 1
 
     # Step 2: repack_evt — apply translations to TEST.EVT
     modified_evt = args.workdir / 'TEST_modified.evt'

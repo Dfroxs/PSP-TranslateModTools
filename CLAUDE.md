@@ -163,6 +163,25 @@ Multi-byte:
 - Custom `.pak`/`.arc` formats vary per game; the generic scanner only finds raw ASCII runs.
 - FFT WoTL uses a **custom 2bpp anti-aliased font + custom byte encoding + multi-byte sequences** — the generic `psp-modtool scan` does not work; use the `tools/` stack instead.
 - **Hard constraint** for any future encoder: text length must not exceed the original (or pointer table must be rewritten). See `TODO_PLAN.md` Fase 5 for the encoder strategy.
+- **Repack bubble invariant (CRITICAL — `tools/repack_evt.py`)**: a dialog bubble
+  is delimited by a single `0xFE` terminator at `byte_end-1`. When substituting a
+  shorter ID translation you MUST preserve the original bubble byte-length and keep
+  **exactly one** `0xFE`, at its original position. Implementation: write the encoded
+  ID text (without an early `0xFE`), fill the gap with **space bytes `0x95`**, then
+  place the single `0xFE` at `byte_end-1`.
+  - Do NOT append an early `0xFE` and leave the original tail behind: that creates a
+    SECOND terminator + leftover English, which shifts the engine's sequential read →
+    dialogs split, speaker names vanish, sentences cut off. (Regression fixed 2026-06-20.)
+  - Do NOT pad with `0x00`: `0x00` is the glyph `'0'` and renders as "0000" when the
+    renderer reads past `0xFE` (the old "OOOO" bug). Space `0x95` renders invisibly.
+  - Verified: identity roundtrip byte-identical (19,925 bubbles) + in-game on PPSSPP
+    (opening Orbonne prayer + dialogue, event 1).
+- **Translation must preserve control codes**: every `<...>` token (`<SPEAKER>`,
+  `<f8>`, `<e3>`, `<e0>`, `<PRAYER>`, `<e2>6`, raw `<XX>`) present in `en` must appear
+  with the same count in `id_final`, and a speaker bubble's `id_final` must start with
+  `<SPEAKER>`. `translate_pipeline.py :: validate_translation` enforces this and ABORTS
+  the pipeline on violation (override: `--ignore-control-errors`). Dropping a
+  `<SPEAKER>` tag makes the speaker name disappear in-game.
 - Always test repacked ISOs in PPSSPP.
 
 ## Reference files

@@ -38,6 +38,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from encode_evt import encode_string, load_table as load_encode_table  # noqa: E402
 
+# Byte terminator end-of-string/bubble.
+BYTE_EOS = 0xFE
+# Filler byte untuk gap antara teks ID (lebih pendek) dan terminator asli.
+# Pakai 0x95 (SPACE) — bukan 0x00:
+#   - 0x00 ter-render sebagai glyph '0' kalau renderer baca melewati 0xFE
+#     (bug "OOOO" lama).
+#   - leftover original bytes bikin terminator/teks GANDA (dialog ke-split,
+#     nama speaker hilang, kalimat terpotong).
+# Space ter-render tak kelihatan (trailing space) dan BUKAN terminator.
+PAD_BYTE = 0x95
+
 
 def find_bubble_byte_range(data: bytes, search_start: int, search_end: int,
                             en_decoded: str) -> tuple[int, int] | None:
@@ -163,15 +174,22 @@ def repack(
                     continue
 
             if allow_truncate:
-                encoded = encoded[:original_length]
+                # Truncate body TAPI tetap pertahankan satu 0xFE di posisi
+                # terminator asli (byte_end-1) supaya cursor engine resume di
+                # byte_end yang benar (panjang bubble tidak berubah).
+                body = encoded.rstrip(b'\xfe')[:original_length - 1]
+                region = body + bytes([PAD_BYTE]) * (original_length - 1 - len(body)) + bytes([BYTE_EOS])
+                assert len(region) == original_length
+                out[byte_start:byte_end] = region
                 stats['truncated'] += 1
                 stats['details'].append({
                     'id': tid,
                     'status': 'truncated',
                     'original_len': original_length,
-                    'encoded_len': len(encoded) + overflow,
+                    'encoded_len': len(encoded),
                     'lost_bytes': overflow,
                 })
+                continue
             else:
                 buffer = count_trailing_zeros(original_data, byte_end)
                 stats['skipped_too_long'] += 1
@@ -187,11 +205,25 @@ def repack(
                 })
                 continue
 
-        # Substitute + pad with 0x00
-        out[byte_start:byte_start + len(encoded)] = encoded
-        if len(encoded) < original_length:
-            for i in range(byte_start + len(encoded), byte_end):
-                out[i] = 0x00
+        # === In-place substitution (len(encoded) <= original_length) ===
+        # INVARIANT: bubble harus tetap punya PANJANG byte yang SAMA dan
+        # PERSIS SATU terminator 0xFE di posisi asli (byte_end-1).
+        #
+        # Kenapa: tiap bubble dibatasi 0xFE. Kalau ID lebih pendek dan kita
+        # cuma menulis `ID + 0xFE` di awal lalu meninggalkan ekor original,
+        # maka muncul 0xFE KEDUA + sisa teks original → engine membaca string
+        # ekstra (dialog ke-split), pointer/urutan bubble bergeser (nama
+        # speaker bubble berikutnya hilang), dan kalimat tampak terpotong.
+        #
+        # Solusi: tulis teks ID, isi gap dengan SPACE (0x95, tak kelihatan,
+        # bukan terminator), dan letakkan 0xFE tunggal tepat di byte_end-1.
+        body = encoded.rstrip(b'\xfe')
+        pad_len = original_length - len(body) - 1
+        region = body + bytes([PAD_BYTE]) * pad_len + bytes([BYTE_EOS])
+        assert len(region) == original_length, (
+            f'region len {len(region)} != original {original_length}'
+        )
+        out[byte_start:byte_end] = region
 
         stats['applied'] += 1
 

@@ -31,3 +31,5 @@ tools/test_translation.json
 tools/e2e_trans.json
 tools/empty_trans.json
 tools/sample_translation.json
+tools/retest_dialog.json
+tools/retest_prayer.json
