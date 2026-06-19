@@ -2,49 +2,183 @@
   "fftpack_path": "/Users/dfroxs/Playground/Python/PspModTools/extracted/PSP_GAME/USRDIR/fftpack.bin",
   "fftpack_size": 220930048,
   "files": {
-    "TEST.EVT": {
-      "offset": 3545088,
-      "size": 7618560
-    },
-    "WORLD.LZW": {
-      "offset": 14333952,
-      "size": 81920
-    },
     "ATCHELP.LZW": {
       "offset": 14168064,
       "size": 131072
+    },
+    "ATTACK.OUT": {
+      "offset": 2134016,
+      "size": 129024
+    },
+    "BONUS.BIN": {
+      "offset": 11403264,
+      "size": 1890304
+    },
+    "BTLEVT.BIN": {
+      "offset": 11294720,
+      "size": 10240
+    },
+    "BUNIT.OUT": {
+      "offset": 2613248,
+      "size": 163840
+    },
+    "CARD.OUT": {
+      "offset": 2502656,
+      "size": 110592
+    },
+    "CHAPTER1.OUT": {
+      "offset": 11304960,
+      "size": 8192
+    },
+    "CHAPTER2.OUT": {
+      "offset": 11313152,
+      "size": 8192
+    },
+    "CHAPTER3.OUT": {
+      "offset": 11321344,
+      "size": 8192
+    },
+    "CHAPTER4.OUT": {
+      "offset": 11329536,
+      "size": 8192
+    },
+    "DEBUGCHR.OUT": {
+      "offset": 2263040,
+      "size": 65536
+    },
+    "DEBUGMAP.OUT": {
+      "offset": null,
+      "size": 0,
+      "note": "empty file"
+    },
+    "END1.BIN": {
+      "offset": 13502464,
+      "size": 133120
+    },
+    "END2.BIN": {
+      "offset": 13635584,
+      "size": 133120
+    },
+    "END3.BIN": {
+      "offset": 13768704,
+      "size": 133120
+    },
+    "END4.BIN": {
+      "offset": 13901824,
+      "size": 133120
+    },
+    "END5.BIN": {
+      "offset": 14034944,
+      "size": 133120
+    },
+    "EQUIP.OUT": {
+      "offset": 2336768,
+      "size": 165888
+    },
+    "ETC.OUT": {
+      "offset": 2328576,
+      "size": 8192
+    },
+    "EVTCHR.BIN": {
+      "offset": 14604288,
+      "size": 4392960
+    },
+    "EVTFACE.BIN": {
+      "offset": 11163648,
+      "size": 65536
+    },
+    "EVTOOL.OUT": {
+      "offset": null,
+      "size": 0,
+      "note": "empty file"
+    },
+    "FONT.BIN": {
+      "offset": 3428352,
+      "size": 77824
+    },
+    "FRAME.BIN": {
+      "offset": 3506176,
+      "size": 38912
+    },
+    "GAMEOVER.BIN": {
+      "offset": 11337728,
+      "size": 65536
+    },
+    "HELP.LZW": {
+      "offset": 14454784,
+      "size": 65536
+    },
+    "HELPMENU.OUT": {
+      "offset": 1961984,
+      "size": 73728
+    },
+    "ITEM.BIN": {
+      "offset": 13303808,
+      "size": 34816
+    },
+    "JOBSTTS.OUT": {
+      "offset": 2035712,
+      "size": 98304
+    },
+    "JOIN.LZW": {
+      "offset": 14442496,
+      "size": 12288
+    },
+    "MAPTITLE.BIN": {
+      "offset": 2777088,
+      "size": 651264
     },
     "OPEN.LZW": {
       "offset": 14415872,
       "size": 26624
     },
-    "HELP.LZW": {
-      "offset": 1968944,
-      "size": 65536,
-      "note": "partial"
+    "OPTION.OUT": {
+      "offset": 1779712,
+      "size": 55296
+    },
+    "REQUIRE.OUT": {
+      "offset": 1835008,
+      "size": 126976
+    },
+    "SAMPLE.LZW": {
+      "offset": 14317568,
+      "size": 16384
+    },
+    "SMALL.OUT": {
+      "offset": 1769472,
+      "size": 10240
+    },
+    "SPELL.MES": {
+      "offset": 14299136,
+      "size": 18432
+    },
+    "TEST.EVT": {
+      "offset": 3545088,
+      "size": 7618560
+    },
+    "UNIT.BIN": {
+      "offset": 11229184,
+      "size": 65536
+    },
+    "WIN001.BIN": {
+      "offset": 13293568,
+      "size": 10240
+    },
+    "WLDFACE.BIN": {
+      "offset": 13371392,
+      "size": 131072
+    },
+    "WLDFACE4.BIN": {
+      "offset": 13338624,
+      "size": 32768
     },
     "WLDHELP.LZW": {
       "offset": 14520320,
       "size": 83968
     },
-    "JOIN.LZW": {
-      "offset": 1887776,
-      "size": 12288,
-      "note": "partial"
-    },
-    "SAMPLE.LZW": {
-      "offset": 1401236,
-      "size": 16384,
-      "note": "partial"
-    },
-    "FONT.BIN": {
-      "offset": 1324236,
-      "size": 77824,
-      "note": "partial"
-    },
-    "SPELL.MES": {
-      "offset": 14299136,
-      "size": 18432
+    "WORLD.LZW": {
+      "offset": 14333952,
+      "size": 81920
     }
   }
 }
