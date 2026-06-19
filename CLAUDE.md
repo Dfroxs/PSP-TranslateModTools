@@ -31,6 +31,22 @@ Subcommands (see `psp_modtool/cli.py`):
 
 ### FFT WoTL tools (tools/)
 
+**Translation pipeline (end-to-end)**:
+```bash
+# Single-command: translations → modified ISO
+python tools/translate_pipeline.py \
+    --translations <translations.json or workspace_dir/> \
+    --original-iso "games/FFT WoTL.iso" \
+    --output-iso /tmp/FFT_ID.iso
+
+# Build translation workspace (45 chunks of 100 blocks each)
+python tools/build_workspace.py tools/events_parsed.json workspace/ --filter-quality
+
+# Gemini auto-translate (needs GEMINI_API_KEY env var)
+python tools/translate_gemini.py workspace/chapter_01.json out.json --end 10
+```
+
+**Reverse engineering tools**:
 ```bash
 # Heuristic byte stats for any binary
 python tools/explore.py <folder-or-file> [--min-len N]
@@ -48,6 +64,31 @@ python tools/char_table.py stats <table.json>
 python tools/decode_evt.py <file.evt> tools/char_table.json [--offset 0x5800] [--length 1024]
 python tools/decode_evt.py <file.evt> tools/char_table.json --search "Father"
 python tools/decode_evt.py <file.evt> tools/char_table.json --full  # decode entire file
+
+# Parse TEST.EVT structure (231 event chunks, 24K bubbles)
+python tools/evt_header.py extracted/.../TEST.EVT --output tools/evt_structure.json
+python tools/evt_parser.py extracted/.../TEST.EVT tools/evt_structure.json --output tools/events_parsed.json
+
+# Extract content from plain-text .LZW files (WORLD/OPEN/ATCHELP)
+python tools/lzw_extract.py extracted/.../WORLD.LZW tools/char_table.json --output out.json
+
+# Generate per-bubble byte budget (translator constraint reference)
+python tools/translation_budget.py extracted/.../TEST.EVT tools/events_parsed.json tools/char_table.json --output tools/translation_budget.json
+```
+
+**Encoder & repack tools** (Phase 5+6):
+```bash
+# Encode text → bytes (lossless, verified roundtrip)
+python tools/encode_evt.py <input.txt> tools/char_table.json [--output out.bin]
+
+# Apply translations to TEST.EVT (in-place substitution)
+python tools/repack_evt.py extracted/.../TEST.EVT tools/events_parsed.json <translations.json> tools/char_table.json --output modified.evt [--allow-stretch] [--allow-truncate]
+
+# Patch fftpack.bin with modified files
+python tools/repack_fftpack.py --fftpack extracted/.../fftpack.bin --map tools/fftpack_event_map.json --substitute TEST.EVT:modified.evt --output modified_fftpack.bin
+
+# Patch ISO directly (size-preserving, no full rebuild)
+python tools/patch_iso.py --iso "FFT.iso" --substitute fftpack.bin:modified_fftpack.bin:0x02c20000 --output FFT_ID.iso
 ```
 
 No test suite, linter, or build script defined.

@@ -30,3 +30,4 @@ tools/stretch_test.json
 tools/test_translation.json
 tools/e2e_trans.json
 tools/empty_trans.json
+tools/sample_translation.json
