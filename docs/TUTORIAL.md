@@ -5,9 +5,9 @@ the Lions (PSP)**. Ikuti dari atas ke bawah. Setiap langkah ada perintahnya,
 apa yang harus muncul, dan cara mengatasi error umum.
 
 Referensi terkait:
-- `README.md` — ringkasan proyek & daftar tool.
-- `CLAUDE.md` — catatan arsitektur + invariant penting (bubble, control code).
-- `TODO_PLAN.md` — roadmap berfase.
+- `../README.md` — ringkasan proyek & daftar tool.
+- `../CLAUDE.md` — catatan arsitektur + invariant penting (bubble, control code).
+- `TASK/TODO_PLAN.md` — roadmap berfase.
 
 ---
 

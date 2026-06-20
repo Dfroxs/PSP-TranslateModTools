@@ -29,8 +29,7 @@ TRANS_BUDGET = BUILD / "translation_budget.json"
 ORIGINAL_TEST_EVT = EXTRACTED / "FFTPACK_Extracted" / "EVENT" / "TEST.EVT"
 ORIGINAL_FFTPACK = EXTRACTED / "PSP_GAME" / "USRDIR" / "fftpack.bin"
 
-# Phase 4 will move this to docs/gemini_prompt_template.md
-PROMPT_TEMPLATE = ROOT / "tools" / "gemini_prompt_template.md"
+PROMPT_TEMPLATE = DOCS / "gemini_prompt_template.md"
 
 # ISO layout
 FFTPACK_ISO_OFFSET = 0x02c20000

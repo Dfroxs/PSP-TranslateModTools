@@ -9,7 +9,7 @@ Two layers:
 1. **`psp_modtool/`** — generic Python CLI to extract, scan, translate, and repack PSP ISO files (ISO 9660 / UMD), aimed at game localization. Pure stdlib, Python ≥ 3.8.
 2. **`tools/`** — game-specific reverse engineering & translation tools for **Final Fantasy Tactics: The War of the Lions (PSP)**. Custom decoder, font analyzer, character table builder. Pure stdlib.
 
-Active focus: EN → ID translation of FFT WoTL. See `TODO_PLAN.md` for roadmap and `DocumentOfComunity.md` for community research & internal reverse engineering findings.
+Active focus: EN → ID translation of FFT WoTL. See `docs/TASK/TODO_PLAN.md` for roadmap and `docs/DocumentOfComunity.md` for community research & internal reverse engineering findings.
 
 ## Commands
 
@@ -162,7 +162,7 @@ Multi-byte:
 - Shift-JIS / non-ASCII encodings (Japanese games) are not handled by the generic pipeline.
 - Custom `.pak`/`.arc` formats vary per game; the generic scanner only finds raw ASCII runs.
 - FFT WoTL uses a **custom 2bpp anti-aliased font + custom byte encoding + multi-byte sequences** — the generic `psp-modtool scan` does not work; use the `tools/` stack instead.
-- **Hard constraint** for any future encoder: text length must not exceed the original (or pointer table must be rewritten). See `TODO_PLAN.md` Fase 5 for the encoder strategy.
+- **Hard constraint** for any future encoder: text length must not exceed the original (or pointer table must be rewritten). See `docs/TASK/TODO_PLAN.md` Fase 5 for the encoder strategy.
 - **Repack bubble invariant (CRITICAL — `tools/repack_evt.py`)**: a dialog bubble
   is delimited by a single `0xFE` terminator at `byte_end-1`. When substituting a
   shorter ID translation you MUST preserve the original bubble byte-length and keep
@@ -186,8 +186,8 @@ Multi-byte:
 
 ## Reference files
 
-- `TODO_PLAN.md` — phased roadmap for completing the FFT WoTL translation pipeline (~5-8 weeks engineering + translation work).
-- `DocumentOfComunity.md` — community research (ffhacktics) + internal reverse engineering findings (font format, character table verification, control codes).
+- `docs/TASK/TODO_PLAN.md` — phased roadmap for completing the FFT WoTL translation pipeline (~5-8 weeks engineering + translation work).
+- `docs/DocumentOfComunity.md` — community research (ffhacktics) + internal reverse engineering findings (font format, character table verification, control codes).
 - `tools/TEST_EVT_decoded.txt` — full decoded TEST.EVT (5.9 MB raw).
 - `tools/TEST_EVT_dialog_only.txt` — 8203 dialog-only blocks (844 KB readable English).
 - `tools/font_renders/glyph_dump.txt` — ASCII art of each glyph (visual reference for extending `char_table.json`).

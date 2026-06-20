@@ -35,7 +35,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 ### Fase 0: Setup & Discovery
 - ✅ Extract FFTPACK.BIN dari ISO WoTL PSP
 - ✅ Identifikasi format file `EVENT/*` (TEST.EVT, *.LZW, *.OUT, FONT.BIN, dll)
-- ✅ Riset komunitas ffhacktics (`DocumentOfComunity.md`)
+- ✅ Riset komunitas ffhacktics (`../DocumentOfComunity.md`)
 - ✅ Konfirmasi: tool komunitas tidak handle dialog WoTL PSP → harus bikin sendiri
 
 ### Fase 1: Decode Pipeline
@@ -140,7 +140,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 | OPEN.LZW | 17.9% | Character names list (partial) |
 
 **Format**: 128-byte header (32 LE32 pointers) + data section (0xFE-terminated strings).
-Detail di `tools/LZW_FORMAT.md`.
+Detail di `../formats/LZW_FORMAT.md`.
 
 Tool: `tools/lzw_extract.py` — sudah jalan, output JSON per file.
 

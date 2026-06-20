@@ -92,7 +92,7 @@ Saat repacking file .LZW plain-text:
 3. Jaga ukuran file (untuk amann, padding ke ukuran original)
 4. Test di PPSSPP — text overflow kemungkinan masalah utama
 
-Konten yang **TIDAK BOLEH ditranslate** (per aturan user — lihat `TODO_PLAN.md`):
+Konten yang **TIDAK BOLEH ditranslate** (per aturan user — lihat `../TASK/TODO_PLAN.md`):
 - Semua entry di `WORLD.LZW` (proper nouns kategorinya jelas)
 - Character names di `OPEN.LZW`
 - Job/spell/item names di mana pun ada

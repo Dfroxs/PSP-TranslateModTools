@@ -14,10 +14,10 @@ Proyek ini punya **dua lapis**:
    font 2bpp custom + multi-byte sequences, jadi dibuat stack terpisah.
 
 > **Fokus aktif**: translasi EN → ID untuk FFT WoTL. **Mulai dari
-> [`TUTORIAL.md`](TUTORIAL.md)** (panduan langkah-demi-langkah dari ISO original
-> sampai ISO terjemahan jadi). Lihat juga `TODO_PLAN.md` (roadmap berfase) dan
+> [`docs/TUTORIAL.md`](docs/TUTORIAL.md)** (panduan langkah-demi-langkah dari ISO original
+> sampai ISO terjemahan jadi). Lihat juga `docs/TASK/TODO_PLAN.md` (roadmap berfase) dan
 > `CLAUDE.md` (catatan arsitektur & temuan reverse engineering). Riset komunitas
-> + temuan internal ada di `DocumentOfComunity.md`.
+> + temuan internal ada di `docs/DocumentOfComunity.md`.
 
 ---
 
@@ -111,7 +111,7 @@ Isi field `translation`. Kosongkan untuk string yang tidak ingin diubah.
 
 ### Alur translasi (end-to-end)
 
-> Panduan lengkap + troubleshooting: lihat **[`TUTORIAL.md`](TUTORIAL.md)**.
+> Panduan lengkap + troubleshooting: lihat **[`docs/TUTORIAL.md`](docs/TUTORIAL.md)**.
 
 ```bash
 # 1. Bangun workspace (chunk dialog, block-id sinkron dengan repack)
