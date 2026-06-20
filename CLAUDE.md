@@ -91,7 +91,7 @@ python -m psp_translate fftpack --fftpack extracted/.../fftpack.bin --map data/f
 python -m psp_translate iso --iso "FFT.iso" --substitute fftpack.bin:modified_fftpack.bin:0x02c20000 --output FFT_ID.iso
 ```
 
-No test suite, linter, or build script defined.
+Regression gate: `python -m psp_translate verify` (or `psp-translate verify` after install) runs `tests/test_stretch_path.py` — verifies stretch path + identity roundtrip across 19,925 bubbles without booting PPSSPP. No linter or build script.
 
 ## Architecture
 
@@ -106,6 +106,7 @@ Pipeline stages (each is a function and a CLI subcommand):
 3. `core/translator.py :: apply_translations` — patches files in place using `(offset, original, translation)` tuples. **Hard constraint**: for binary files, translated bytes are truncated/padded to the original length so internal offsets/pointers don't shift. Plain-text files are rewritten line-based. A `.bak` is created before mutation.
 4. `core/repacker.py :: repack_iso` — rebuilds a minimal ISO 9660 image (System Area + PVD + VDST + root dir + file data) using `iso9660.build_pvd`, `build_vdst`, `write_dir_record`.
 5. `core/pipeline.py :: run_all` — chains the above with an interactive pause between scan and apply.
+6. `core/inspector.py :: inspect_iso` — heuristic ISO fitness check without extracting; scores how much ASCII English text each file contains. ISOs with custom-encoded text (Shift-JIS, tile fonts, compression) score low. Used to triage whether an ISO is worth the full pipeline.
 
 Shared low-level ISO logic lives in `core/iso9660.py`. ISO layout constants (`SECTOR_SIZE=2048`, `PVD_SECTOR=16`, etc.) are in `utils/constants.py` — don't hardcode elsewhere. `utils/logger.py` provides colored terminal output; `utils/text_detect.py` holds ASCII heuristics.
 
@@ -119,6 +120,11 @@ The generic scanner CANNOT find dialog in FFT WoTL because text is custom-encode
 - `data/char_table.json` — mapping `byte → Unicode char` for FFT WoTL custom encoding. Currently 62 single-byte (digit + A-Z + a-z) + punctuation + multi-byte sequences.
 - `psp_translate/codec/decode.py` — decodes `TEST.EVT` and similar files using `char_table.json`. Handles single-byte, multi-byte sequences, control codes, padding skip, search mode.
 
+**Two architectural invariants** that must be preserved when adding modules:
+
+- `psp_translate/cli.py` is a runpy dispatcher — its `SUBCOMMANDS` dict is the canonical mapping `subcommand → module path`. To add a new subcommand: write the module so it has a `__main__` block (argparse) and register one entry in this dict. No bespoke argparse re-implementation in `cli.py`.
+- `psp_translate/paths.py` is the single source of truth for ALL filesystem paths (CHAR_TABLE, EVENTS_PARSED, ORIGINAL_TEST_EVT, PROMPT_TEMPLATE, FFTPACK_ISO_OFFSET, etc.). Never hardcode path literals or `sys.path.insert` hacks in submodules — import from `paths`.
+
 Data flow for FFT WoTL:
 
 ```
@@ -126,15 +132,16 @@ ISO → psp_modtool.extract → extracted/FFTPACK_Extracted/EVENT/
                                             │
                             ┌───────────────┼─────────────┐
                             ▼               ▼             ▼
-                       FONT.BIN        TEST.EVT       *.LZW
-                            │               │             │
-              psp-translate     psp-translate     (TODO: lzw_codec)
-              font-render       decode
+                       FONT.BIN        TEST.EVT        *.LZW
+                            │               │              │
+                       font-render       decode       (TODO: lzw_codec)
                             │               │
                             └──► data/char_table.json ◄┘
                                        │
                                   build/TEST_EVT_dialog_only.txt
                                   (8203 readable dialog blocks)
+
+   (column labels = `psp-translate <subcommand>`)
 ```
 
 ### FFT WoTL byte encoding (key facts for editing the table/decoder)
