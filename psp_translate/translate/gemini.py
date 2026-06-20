@@ -147,6 +147,41 @@ def estimate_byte_length(text: str) -> int:
     return n
 
 
+# Reverse of the approved abbreviations from the prompt. The model sometimes
+# abbreviates even when there is room ("yg"/"kpd" where "yang"/"kepada" fit),
+# which reads worse. After translation we expand each abbreviation BACK to its
+# full word wherever the full form still fits the byte budget — deterministic,
+# budget-safe cleanup. ("tak" is intentionally absent: it is a normal standard
+# word, not an ugly contraction, so it is left as-is.)
+ABBREV_EXPANSIONS: dict[str, str] = {
+    'yg': 'yang', 'dgn': 'dengan', 'utk': 'untuk', 'tdk': 'tidak',
+    'sdh': 'sudah', 'krn': 'karena', 'dlm': 'dalam', 'kpd': 'kepada',
+    'drpd': 'daripada', 'jg': 'juga', 'blm': 'belum', 'org': 'orang',
+    'byk': 'banyak', 'spt': 'seperti', 'sblm': 'sebelum', 'ssdh': 'sesudah',
+    'bgmn': 'bagaimana', 'ttg': 'tentang', 'smp': 'sampai',
+}
+
+
+def expand_abbreviations(id_text: str, en: str) -> str:
+    """Expand abbreviations back to full words where the byte budget allows.
+
+    Budget basis = `estimate_byte_length(en)`, the same `max_bytes` the model is
+    told to fit. Each expansion is applied greedily and ONLY if the result still
+    fits, so a genuinely budget-tight line keeps its abbreviations. Control codes
+    (`<...>`) are never touched (word-boundary matching on letters only).
+    """
+    budget = estimate_byte_length(en)
+    out = id_text
+    for ab, full in ABBREV_EXPANSIONS.items():
+        pattern = re.compile(r'(?<![A-Za-z])' + re.escape(ab) + r'(?![A-Za-z])')
+        if not pattern.search(out):
+            continue
+        candidate = pattern.sub(full, out)
+        if estimate_byte_length(candidate) <= budget:
+            out = candidate
+    return out
+
+
 def build_user_message(batch: list[dict[str, Any]]) -> str:
     """Bikin user message: instruction + JSON array of {id, en, max_bytes, speaker}."""
     items = []
@@ -166,12 +201,12 @@ def build_user_message(batch: list[dict[str, Any]]) -> str:
         'in the same order, same length. Preserve all control codes and proper '
         'nouns per the rules.\n\n'
         'CRITICAL: Each block has a `max_bytes` field. Your `id_text` must NOT '
-        'exceed `max_bytes` (estimate: 1 char ≈ 1 byte). Prefer shorter ID over '
-        'literal accuracy — overflow = block dropped from final patch.\n'
-        'If a translation would overflow, use COMMON Indonesian abbreviations '
-        '(yang→yg, dengan→dgn, untuk→utk, tidak→tak, sudah→sdh, dalam→dlm, '
-        'karena→krn, kepada→kpd) — ONLY when needed to fit, and NEVER in a way '
-        'that changes the meaning of the story. Do not abbreviate proper nouns '
+        'exceed `max_bytes` (estimate: 1 char ≈ 1 byte). First write the FULL, '
+        'natural Indonesian (complete subject/pronoun, full words). ONLY if it '
+        'overflows `max_bytes`, shorten using the approved abbreviations '
+        '(yang→yg, dengan→dgn, untuk→utk, sudah→sdh, dalam→dlm, karena→krn, '
+        'kepada→kpd) — and never in a way that changes the meaning. A line that '
+        'already fits MUST stay in full words. Do not abbreviate proper nouns '
         'or control codes.\n\n'
         f'{js}'
     )
@@ -295,6 +330,31 @@ def save_output(path: Path, metadata: dict[str, Any], blocks: list[dict]) -> Non
                     encoding='utf-8')
 
 
+def looks_like_dialog(en: str) -> bool:
+    """True kalau `en` adalah teks dialog asli, bukan bytecode/garbage.
+
+    Beberapa bubble yang ke-parse sebenarnya region bytecode (mis.
+    `<f1>20o0072<ff><fc>0<f1>20jm0A020...`) — kalau dikirim ke Gemini, output
+    JSON-nya rusak dan menjatuhkan SELURUH batch. Blok seperti ini harus
+    di-skip (repack mempertahankan byte asli; lihat invariant di CLAUDE.md).
+
+    Heuristik (di-tune dari chapter_01/02): buang semua tag `<...>`, lalu garbage
+    kalau hampir tak ada huruf, didominasi digit, atau tidak punya satu pun
+    "kata" (run huruf >= 3).
+    """
+    text = re.sub(r'<[^<>]+>', '', en)
+    letters = sum(c.isalpha() for c in text)
+    digits = sum(c.isdigit() for c in text)
+    words = re.findall(r'[A-Za-z]{3,}', text)
+    if letters < 3:
+        return False
+    if digits > letters:
+        return False
+    if not words:
+        return False
+    return True
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -330,8 +390,13 @@ def main() -> int:
     total = len(all_blocks)
     print(f'Loaded {total} blocks from {args.input}.')
 
-    # Apply range
-    end = args.end if args.end is not None else total
+    # Apply range. Block ids are GLOBAL (a chapter chunk may span e.g.
+    # 299..481), so the default end must be max(id)+1 — not the block COUNT,
+    # which would wrongly exclude every block whose id >= count.
+    if args.end is not None:
+        end = args.end
+    else:
+        end = (max(b['id'] for b in all_blocks) + 1) if all_blocks else 0
     selected = [b for b in all_blocks if args.start <= b['id'] < end]
     if not selected:
         print(f'No blocks in range [{args.start}, {end}).', file=sys.stderr)
@@ -345,14 +410,30 @@ def main() -> int:
 
     by_id_idx: dict[int, int] = {b['id']: i for i, b in enumerate(merged)}
 
-    # Filter to-translate: in range + not yet auto/approved
+    # Mark non-dialog/garbage blocks as 'skip' so they are never sent to the
+    # API (they corrupt the batch's JSON) and never retried on resume. repack
+    # leaves their original bytes intact.
+    newly_skipped = 0
+    for b in selected:
+        entry = merged[by_id_idx[b['id']]]
+        if entry['status'] in ('auto', 'approved', 'skip'):
+            continue
+        if not looks_like_dialog(b['en']):
+            entry['status'] = 'skip'
+            entry['flags'] = ['non_dialog']
+            newly_skipped += 1
+    if newly_skipped:
+        print(f'Skipping {newly_skipped} non-dialog/garbage blocks (kept as-is).')
+        save_output(args.output, build_metadata(args, total, merged), merged)
+
+    # Filter to-translate: in range + not yet auto/approved/skip
     to_translate = [
         b for b in selected
-        if merged[by_id_idx[b['id']]]['status'] not in ('auto', 'approved')
+        if merged[by_id_idx[b['id']]]['status'] not in ('auto', 'approved', 'skip')
     ]
     skipped = len(selected) - len(to_translate)
     if skipped:
-        print(f'Resuming: {skipped} already translated, {len(to_translate)} remaining.')
+        print(f'Resuming: {skipped} already done/skipped, {len(to_translate)} remaining.')
 
     if not to_translate and not args.dry_run:
         print('Nothing to translate. Exiting.')
@@ -439,6 +520,7 @@ def main() -> int:
                 flagged_count += 1
                 continue
             id_text = by_id_response[bid]
+            id_text = expand_abbreviations(id_text, b['en'])
             flags = validate_translation(b['en'], id_text)
             entry['id_auto'] = id_text
             entry['flags'] = flags
@@ -483,6 +565,7 @@ def build_metadata(args: argparse.Namespace, total: int,
         'errors': status_counts.get('error', 0),
         'pending': status_counts.get('pending', 0),
         'approved': status_counts.get('approved', 0),
+        'skipped': status_counts.get('skip', 0),
     }
 
 

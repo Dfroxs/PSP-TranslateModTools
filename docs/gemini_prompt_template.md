@@ -64,7 +64,11 @@ consistent. It is reference, NOT content to insert. (Source: Final Fantasy Wiki.
 
 ================================================================================
   CRITICAL RULES — VIOLATING ANY OF THESE WILL CAUSE THE TRANSLATION TO BE
-  REJECTED. PRECISION MATTERS MORE THAN FLUENCY.
+  REJECTED. PRECISION AND NATURAL FLUENCY BOTH MATTER: the output must read
+  like fluent Indonesian a native speaker would actually say — complete
+  sentences with their subject/pronoun intact, full words, no telegram-style
+  clipping. NEVER sacrifice naturalness unless the byte budget (rule 5)
+  literally forces it.
 ================================================================================
 
 1. PRESERVE ALL CONTROL CODES VERBATIM, BYTE-FOR-BYTE:
@@ -126,15 +130,25 @@ consistent. It is reference, NOT content to insert. (Source: Final Fantasy Wiki.
    - Do NOT remove ellipses (`...`)
    - Em-dash `—` stays em-dash
 
-4. STYLE per speaker (apply when speaker is identified in `<SPEAKER>...` tag):
-   - Ramza, Delita        → mix of casual and earnest (young, sincere)
-   - Ovelia, Cardinal, Priest, Father, clergy → formal, aristocratic,
-                            slightly archaic Indonesian ("hamba" / "Yang Mulia")
-   - Gaffgarion, Mustadio → sarcastic, gritty, can use mild slang
-   - Knight, Soldier      → neutral / military-formal
-   - Cúchulainn / demons / villains → formal + ominous / menacing
-   - Rogue, Highwayman, Brigand → rough, colloquial
-   - Narrator / unknown   → neutral formal
+4. STYLE & PRONOUNS per speaker (apply when speaker is identified in
+   `<SPEAKER>...` tag). PRONOUN CHOICE IS DETERMINED BY SOCIAL POSITION, not by
+   "archaic vs casual" — getting it wrong sounds absurd to ID players:
+   - Ovelia (a princess), nobles, royalty → refined, formal Indonesian.
+     Self-reference = "aku"/"ku". Royalty does NOT lower itself: NEVER use
+     "hamba" for Ovelia or any noble. Address inferiors by name or "kau".
+   - Servants, commoners, soldiers, knights speaking TO royalty/nobility →
+     deferential: self = "hamba", address them "Yang Mulia" / "Tuan" / "Nyonya".
+     ("hamba" belongs to the SUBORDINATE, never to the royal/noble.)
+   - Cardinal, Priest, Father, clergy → formal, slightly archaic, pious.
+   - Ramza, Delita        → young, sincere; self = "aku"; mix casual + earnest.
+   - Gaffgarion, Mustadio → sarcastic, gritty; self = "aku"; mild slang ok.
+   - Knight, Soldier      → neutral / military-formal.
+   - Cúchulainn / demons / villains → formal + ominous / menacing.
+   - Rogue, Highwayman, Brigand → rough, colloquial.
+   - Narrator / unknown   → neutral formal.
+   Whatever the speaker, write COMPLETE sentences with the subject/pronoun
+   present ("Aku…", "Kau…", "Kami…"). Do NOT drop the subject to save space
+   unless rule 5's byte budget forces it.
 
 5. BYTE BUDGET (CRITICAL — translations OVERFLOWING budget will be REJECTED):
 
@@ -143,9 +157,15 @@ consistent. It is reference, NOT content to insert. (Source: Final Fantasy Wiki.
    by counting: each printable char = 1 byte, each `<XX>` tag = 1 byte,
    multi-byte chars (`,` `—` `ú`) = 2 bytes.
 
-   Your `id_text` translation MUST fit within `max_bytes`. PREFERABLY be
-   SHORTER than the English original. Apply compaction strategies IN THIS
-   ORDER (least lossy first), and ONLY as much as needed to fit the budget:
+   Your `id_text` MUST fit within `max_bytes`. PROCESS — follow in order:
+     (1) First write the FULL, natural Indonesian translation, with every
+         subject/pronoun and full (unabbreviated) words.
+     (2) Check whether it fits `max_bytes`.
+     (3) ONLY if it overflows, apply the compaction strategies below, in order,
+         and ONLY as much as needed to fit.
+   A translation that ALREADY FITS must NOT be abbreviated or stripped of its
+   subject — natural full text always wins when there is room. Do not shorten
+   for its own sake. Compaction strategies (least lossy first):
      1. Drop redundant words: "the", "a", "an" often unnecessary in ID
      2. Use shorter synonyms: "memperhatikan" → "lihat", "menyaksikan" → "lihat"
      3. Drop honorific markers when context clear: "Anda" → "kau"
@@ -260,6 +280,29 @@ diam saja saat kau membuang nyawamu untuk mereka") overflows max_bytes=70, so
 common abbreviations were applied — "tidak" → "tak", "untuk" → "utk" — plus
 compaction ("membuang" → "buang"). Meaning unchanged. Delita is earnest but
 youthful, so light abbreviation fits his register.
+
+Input:
+  [{"id": 6, "en": "<SPEAKER><e0><f8><e3>I'm a knight no longer.<f8>Just another sellsword.", "max_bytes": 54}]
+
+Output:
+  [{"id": 6, "id_text": "<SPEAKER><e0><f8><e3>Aku bukan ksatria lagi.<f8>Hanya tentara bayaran."}]
+
+Notes: NATURALNESS-FIRST — the budget (54) has room, so keep the full subject
+"Aku" and full words. Do NOT clip to "Bukan ksatria lagi" (no reason to). Here
+lowercase "knight" is a COMMON NOUN ("ksatria"), not the Job-class token —
+translate it. (Only translate "Knight" to English-preserved when it labels the
+character class/job, e.g. a `<SPEAKER>Knight` nameplate.) "sellsword" =
+"tentara bayaran". No abbreviation because it already fits.
+
+Input:
+  [{"id": 7, "en": "<SPEAKER>Ovelia<f8><e3>I'll not be much longer, Agrias.", "max_bytes": 45}]
+
+Output:
+  [{"id": 7, "id_text": "<SPEAKER>Ovelia<f8><e3>Aku tak akan lama, Agrias."}]
+
+Notes: REGISTER — Ovelia is a princess, so she says "Aku", NEVER "hamba"
+(royalty does not lower itself). "Agrias" preserved (name). It fits the budget
+naturally, so no abbreviation.
 
 ================================================================================
   REMINDER: Output ONLY the JSON array. No fences, no commentary.
