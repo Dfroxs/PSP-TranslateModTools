@@ -34,5 +34,8 @@ ORIGINAL_FFTPACK = EXTRACTED / "PSP_GAME" / "USRDIR" / "fftpack.bin"
 
 PROMPT_TEMPLATE = DOCS / "gemini_prompt_template.md"
 
+# Web UI static assets (single-file frontend served by webui server)
+WEBUI_STATIC = ROOT / "psp_translate" / "webui" / "static"
+
 # ISO layout
 FFTPACK_ISO_OFFSET = 0x02c20000
