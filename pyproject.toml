@@ -9,10 +9,11 @@ keywords = ["psp", "iso", "modding", "translation", "localization"]
 
 [project.scripts]
 psp-modtool = "psp_modtool.cli:main"
+psp-translate = "psp_translate.cli:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["psp_modtool*"]
+include = ["psp_modtool*", "psp_translate*"]
