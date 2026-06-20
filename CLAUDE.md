@@ -195,6 +195,7 @@ Multi-byte:
 ## Reference files
 
 - `docs/TASK/TODO_PLAN.md` — phased roadmap for completing the FFT WoTL translation pipeline (~5-8 weeks engineering + translation work).
+- `docs/TASK/MULTI_GAME_NOTES.md` — **read this AFTER FFT WoTL ships.** What's reusable vs FFT-specific if you ever want to port the toolkit to another PSP game; fork-vs-plugin architecture decision; per-game investigation workflow.
 - `docs/DocumentOfComunity.md` — community research (ffhacktics) + internal reverse engineering findings (font format, character table verification, control codes).
 - `build/TEST_EVT_decoded.txt` — full decoded TEST.EVT (5.9 MB raw).
 - `build/TEST_EVT_dialog_only.txt` — 8203 dialog-only blocks (844 KB readable English).
