@@ -98,10 +98,16 @@ def parse_workspace_json(path: Path) -> list[dict[str, Any]]:
     blocks = data.get('blocks', [])
     out = []
     for b in blocks:
+        byte_length = b.get('byte_length')
+        if byte_length is None and b.get('byte_range'):
+            byte_length = b['byte_range'][1] - b['byte_range'][0]
         out.append({
             'id': b['id'],
             'en': b['en'],
             'speaker': b.get('speaker'),
+            # Real encoded byte budget (== repack's bubble length, terminator
+            # included). Used for accurate max_bytes + post-translate compaction.
+            'byte_length': byte_length,
         })
     return out
 
@@ -182,11 +188,95 @@ def expand_abbreviations(id_text: str, en: str) -> str:
     return out
 
 
+# --- Real-encoder budget check + compaction -------------------------------
+# The model frequently OVERSHOOTS the byte budget it is given (it cannot count
+# bytes precisely). estimate_byte_length is only an approximation; the binding
+# constraint at repack time is the REAL encoded length (must be <= the bubble's
+# byte_length, terminator included). We therefore re-validate every translation
+# against the real encoder and deterministically compact any overflow. If the
+# real encoder can't be loaded (e.g. char table missing) we degrade gracefully
+# to the estimate so the tool still runs standalone.
+try:
+    from psp_translate.codec.encode import encode_string as _encode_string, load_table as _load_table
+    from psp_translate import paths as _paths
+
+    _CHAR_TABLE_CACHE = None
+
+    def _char_table():
+        global _CHAR_TABLE_CACHE
+        if _CHAR_TABLE_CACHE is None:
+            _CHAR_TABLE_CACHE = _load_table(_paths.CHAR_TABLE)
+        return _CHAR_TABLE_CACHE
+
+    def encoded_byte_length(text: str) -> int:
+        c2b, c2m, n2b = _char_table()
+        b = _encode_string(text, c2b, c2m, n2b)
+        if not b.endswith(b'\xfe'):
+            b = b + b'\xfe'
+        return len(b)
+
+    _REAL_ENCODER = True
+except Exception:  # pragma: no cover - fallback path
+    _REAL_ENCODER = False
+
+    def encoded_byte_length(text: str) -> int:
+        return estimate_byte_length(text)
+
+
+# Ordered full->short reductions, applied ONLY as needed to fit a tight budget.
+# Approved abbreviations first (least lossy), then mild me-prefix stripping,
+# then droppable auxiliaries. Meaning is preserved; only verbosity is cut.
+_COMPACTION_ABBREV = [
+    ('yang', 'yg'), ('dengan', 'dgn'), ('untuk', 'utk'), ('kepada', 'kpd'),
+    ('sudah', 'sdh'), ('dalam', 'dlm'), ('tidak', 'tak'), ('tetapi', 'tapi'),
+    ('karena', 'krn'), ('daripada', 'drpd'), ('sebelum', 'sblm'),
+    ('sesudah', 'ssdh'), ('seperti', 'spt'), ('juga', 'jg'), ('belum', 'blm'),
+    ('tentang', 'ttg'), ('sampai', 'smp'),
+]
+_COMPACTION_MEPREFIX = [
+    ('membuat', 'buat'), ('melakukan', 'lakukan'), ('menyelamatkan', 'selamatkan'),
+    ('mengalahkan', 'kalahkan'), ('memegang', 'pegang'), ('menolong', 'tolong'),
+    ('membunuh', 'bunuh'), ('mengendalikan', 'kendalikan'), ('memperkuat', 'perkuat'),
+    ('mendukung', 'dukung'), ('membantu', 'bantu'), ('menjaga', 'jaga'),
+]
+_COMPACTION_DROP = ['akan', 'adalah', 'telah']
+
+
+def compact_to_budget(id_text: str, budget: int, en: str) -> tuple[str, bool]:
+    """Shrink an overflowing translation to fit `budget` (real encoded bytes).
+
+    Applies reductions in order, ONLY while still over budget, and ONLY when the
+    control-code multiset stays identical to `en` (never drops a `<...>` token).
+    Returns (possibly-shortened text, fits_budget).
+    """
+    want = extract_control_codes(en)
+
+    def keeps_codes(s: str) -> bool:
+        return extract_control_codes(s) == want
+
+    out = id_text
+    for full, short in _COMPACTION_ABBREV + _COMPACTION_MEPREFIX:
+        if encoded_byte_length(out) <= budget:
+            break
+        cand = re.sub(r'(?<![A-Za-z])' + re.escape(full) + r'(?![A-Za-z])', short, out)
+        if keeps_codes(cand):
+            out = cand
+    for word in _COMPACTION_DROP:
+        if encoded_byte_length(out) <= budget:
+            break
+        cand = re.sub(r'(?<![A-Za-z])' + word + r'\s', '', out)
+        cand = re.sub(r'  +', ' ', cand)
+        if keeps_codes(cand):
+            out = cand
+    return out, encoded_byte_length(out) <= budget
+
+
 def build_user_message(batch: list[dict[str, Any]]) -> str:
     """Bikin user message: instruction + JSON array of {id, en, max_bytes, speaker}."""
     items = []
     for b in batch:
-        en_bytes = estimate_byte_length(b['en'])
+        # Prefer the real bubble byte budget; fall back to the estimate.
+        en_bytes = b.get('byte_length') or estimate_byte_length(b['en'])
         item = {
             'id': b['id'],
             'en': b['en'],
@@ -310,6 +400,8 @@ def merge_blocks(existing: list[dict] | None,
             entry['en'] = b['en']
             if b.get('speaker') is not None:
                 entry['speaker'] = b['speaker']
+            if b.get('byte_length') is not None:
+                entry['byte_length'] = b['byte_length']
             out.append(entry)
         else:
             out.append({
@@ -521,7 +613,20 @@ def main() -> int:
                 continue
             id_text = by_id_response[bid]
             id_text = expand_abbreviations(id_text, b['en'])
+            # Real-encoder budget guard: the model often overshoots max_bytes.
+            # If the translation exceeds the bubble's real byte budget, compact
+            # it deterministically; if it STILL overflows, flag it (so it lands
+            # in needs_review and is never silently dropped at repack time).
+            budget = b.get('byte_length')
             flags = validate_translation(b['en'], id_text)
+            if budget:
+                if encoded_byte_length(id_text) > budget:
+                    id_text, fits = compact_to_budget(id_text, budget, b['en'])
+                    if not fits:
+                        flags = flags + [
+                            f'overflow_byte_budget:'
+                            f'{encoded_byte_length(id_text) - budget}'
+                        ]
             entry['id_auto'] = id_text
             entry['flags'] = flags
             if flags:
