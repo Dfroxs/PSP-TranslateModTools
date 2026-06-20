@@ -568,7 +568,15 @@ CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
   precedent proper-noun (Order→Ordo, Corpse Brigade→Pasukan Mayat, Akademy English)
   → approve blok yg flag-nya tinggal precedent, sisakan overflow + proper-noun BARU
   untuk review manusia.
-- **Berikutnya**: chapter 03+ dgn alur `gemini` → `review-apply` → review sisa.
+- **Review web UI shipped** (`psp-translate webui`): workbench browser stdlib-only
+  (http.server, tanpa pip/npm) untuk alur review. Membungkus subcommand yg ada
+  sbg job subprocess dgn live-log via SSE — "Full Translate"→`gemini`, "Script
+  Check"→`script-check`. Per-block editor menampilkan pratinjau dialog ala FFT,
+  cek byte-budget real (`codec.encode`), filter tab Skip/Error/Review/Done, edit
+  `id_final`/`status` → tulis ke `chapter_NN.out.json`. Chat Gemini in-app
+  (reuse `google.genai`); server auto re-exec ke interpreter yg punya google-genai.
+- **Berikutnya**: chapter 03+ dgn alur `gemini` → `review-apply` → review sisa
+  (kini bisa lewat web UI).
 
 **Track B — Distribution (Fase 6 leftover + new)**
 - `xdelta3` patch generator (TODO: `psp_translate/xdelta_build.py`)
@@ -585,4 +593,4 @@ CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
 
 ---
 
-*Last updated: 2026-06-21 (Fase 8 started: wiki-grounded Gemini translate; chapter 01 & 02 done + reviewed)*
+*Last updated: 2026-06-21 (Fase 8: wiki-grounded Gemini translate; chapter 01 & 02 done + reviewed; review web UI `psp-translate webui` shipped)*
