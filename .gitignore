@@ -8,6 +8,9 @@ strings.json
 __pycache__/
 *.pyc
 
+# Build artifacts (generated, regenerable via tools)
+build/
+
 # Large derived files (regenerable via tools)
 tools/TEST_EVT_decoded.txt
 tools/TEST_EVT_dialog_only.txt
