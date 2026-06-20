@@ -1,4 +1,4 @@
-"""Compatibility wrapper. Phase 2 — real code lives in psptranslationmod.codec.decode.
+"""Compatibility wrapper. Phase 2 — real code lives in psp_translate.codec.decode.
 
 Will be deleted in Phase 5 once docs migrate fully to the unified CLI.
 """
@@ -7,4 +7,4 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-runpy.run_module('psptranslationmod.codec.decode', run_name='__main__', alter_sys=True)
+runpy.run_module('psp_translate.codec.decode', run_name='__main__', alter_sys=True)

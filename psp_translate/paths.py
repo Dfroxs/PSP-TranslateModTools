@@ -1,4 +1,4 @@
-"""Centralized paths for psptranslationmod.
+"""Centralized paths for psp_translate.
 
 Single source of truth — no path literals or `sys.path.insert` hacks
 elsewhere in the package.

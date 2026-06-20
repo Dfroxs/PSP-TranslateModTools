@@ -25,7 +25,7 @@ import json
 import re
 from pathlib import Path
 
-from psptranslationmod import paths
+from psp_translate import paths
 
 # Mapping entry index ke kategori (dari hasil eksplorasi)
 WORLD_CATEGORIES = {

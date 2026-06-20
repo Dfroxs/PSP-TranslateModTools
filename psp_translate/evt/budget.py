@@ -19,7 +19,7 @@ import json
 import sys
 from pathlib import Path
 
-from psptranslationmod.codec.encode import encode_string, load_table
+from psp_translate.codec.encode import encode_string, load_table
 
 
 def count_trailing_zeros(data: bytes, start: int, max_check: int = 4096) -> int:

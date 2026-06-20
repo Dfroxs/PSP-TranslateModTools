@@ -41,7 +41,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from psptranslationmod import paths
+from psp_translate import paths
 
 PROMPT_TEMPLATE_PATH = paths.PROMPT_TEMPLATE
 

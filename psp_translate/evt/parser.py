@@ -37,8 +37,8 @@ import json
 import sys
 from pathlib import Path
 
-from psptranslationmod.codec.decode import decode, load_table
-from psptranslationmod import paths
+from psp_translate.codec.decode import decode, load_table
+from psp_translate import paths
 
 # Markers
 BYTE_EOS = 0xFE

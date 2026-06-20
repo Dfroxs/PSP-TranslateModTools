@@ -28,15 +28,18 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-from repack_evt import repack, count_trailing_zeros, BYTE_EOS  # noqa: E402
-from encode_evt import encode_string, load_table as load_encode_table  # noqa: E402
-from decode_evt import decode, load_table as load_decode_table  # noqa: E402
+# Allow `python tests/test_stretch_path.py` (script mode); `-m tests.test_stretch_path` works without this.
+if __name__ == '__main__' and __package__ is None:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-ROOT = Path(__file__).parent.parent
-TEST_EVT = ROOT / 'extracted' / 'FFTPACK_Extracted' / 'EVENT' / 'TEST.EVT'
-EVENTS_PARSED = ROOT / 'build' / 'events_parsed.json'
-CHAR_TABLE = ROOT / 'data' / 'char_table.json'
+from psp_translate.evt.repack import repack, count_trailing_zeros, BYTE_EOS
+from psp_translate.codec.encode import encode_string, load_table as load_encode_table
+from psp_translate.codec.decode import decode, load_table as load_decode_table
+from psp_translate import paths
+
+TEST_EVT = paths.ORIGINAL_TEST_EVT
+EVENTS_PARSED = paths.EVENTS_PARSED
+CHAR_TABLE = paths.CHAR_TABLE
 
 TRANSLATABLE_KINDS = {'text', 'narration', 'speaker'}
 

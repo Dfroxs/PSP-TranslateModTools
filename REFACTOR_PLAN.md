@@ -31,7 +31,7 @@
 
 | # | Topik | Keputusan |
 |---|-------|-----------|
-| 1 | Nama package | Brand proyek **PSPTRANSLATIONMOD**. Folder package Python = **`psptranslationmod/`** (lowercase, supaya valid & importable: `from psptranslationmod.codec import encode`). Nama distribusi di `pyproject.toml` boleh `psptranslationmod`. |
+| 1 | Nama package | Brand proyek **PSPTRANSLATIONMOD**. Folder package Python = **`psp_translate/`** (lowercase, supaya valid & importable: `from psp_translate.codec import encode`). Nama distribusi di `pyproject.toml` boleh `psp_translate`. |
 | 2 | Docs | `CLAUDE.md` **tetap di root** (konvensi Claude Code). Semua **dokumen PLAN** (`TODO_PLAN.md`, `REFACTOR_PLAN.md`) pindah ke **`docs/TASK/`**. Docs lain (`TUTORIAL.md`, `DocumentOfComunity.md`, format spec, prompt template) ke `docs/`. |
 | 3 | `events_parsed.json` (9.3M) | Diperlakukan **generated** → pindah `build/`, gitignored (regenerable via `evt_parser`). |
 | 4 | File legacy & artefak dev | **Hapus** `translation_workspace.py` (digantikan `build_workspace.py`) + semua JSON artefak dev (`*_trans.json`, `*_test.json`, `identity_*.json`, `single_test.json`, dll). |
@@ -40,8 +40,8 @@
 > Catatan casing (keputusan #1): Python meng-import modul lewat nama folder.
 > `PSPTRANSLATIONMOD` (huruf besar) sah secara teknis tapi melanggar PEP 8 dan
 > rawan bikin bingung di sistem file case-insensitive (macOS). Karena itu folder
-> importable dibuat `psptranslationmod/`. Kalau user tetap mau folder huruf
-> besar persis, ganti semua `psptranslationmod` → `PSPTRANSLATIONMOD` di §3–§5.
+> importable dibuat `psp_translate/`. Kalau user tetap mau folder huruf
+> besar persis, ganti semua `psp_translate` → `PSPTRANSLATIONMOD` di §3–§5.
 
 ---
 
@@ -49,9 +49,9 @@
 
 1. **Pisahkan 4 kelas file**: `code` (source) · `data` (sumber, kecil, versioned)
    · `build/` (generated, gitignored) · `docs/`.
-2. **`tools/` jadi package nyata** (`psptranslationmod/`) dengan import antar-modul
-   yang benar (`from psptranslationmod.codec import encode`), buang `sys.path.insert`.
-3. **Satu CLI** (`psptranslationmod <subcommand>`) menggantikan belasan script lepas;
+2. **`tools/` jadi package nyata** (`psp_translate/`) dengan import antar-modul
+   yang benar (`from psp_translate.codec import encode`), buang `sys.path.insert`.
+3. **Satu CLI** (`psp_translate <subcommand>`) menggantikan belasan script lepas;
    script lama tetap bisa dipanggil via thin wrapper selama transisi.
 4. **Nol artefak generated di git**; semua regenerable lewat perintah.
 5. **Behavior-preserving**: tidak ada perubahan logika di fase mana pun.
@@ -64,7 +64,7 @@
 PspModTools/
 ├── README.md                      # tetap di root
 ├── CLAUDE.md                      # tetap di root (konvensi Claude Code)
-├── pyproject.toml                 # tambah entry_points: psp-modtool, psptranslationmod
+├── pyproject.toml                 # tambah entry_points: psp-modtool, psp_translate
 ├── main.py                        # entry CLI generik (tetap)
 │
 ├── docs/
@@ -84,9 +84,9 @@ PspModTools/
 │   │          pipeline, inspector)   # NOTE: inspector.py belum terdokumentasi
 │   └── utils/ (constants, logger, text_detect)
 │
-├── psptranslationmod/             # eks-`tools/*.py` jadi package (PSPTRANSLATIONMOD)
+├── psp_translate/             # eks-`tools/*.py` jadi package (PSPTRANSLATIONMOD)
 │   ├── __init__.py
-│   ├── cli.py                     # entrypoint: psptranslationmod <cmd>
+│   ├── cli.py                     # entrypoint: psp_translate <cmd>
 │   ├── paths.py                   # SATU sumber path (ganti hardcode M7)
 │   ├── codec/
 │   │   ├── __init__.py
@@ -145,25 +145,25 @@ PspModTools/
 
 ## 5. Pemetaan migrasi (lengkap)
 
-### Kode (`tools/*.py` → `psptranslationmod/`)
+### Kode (`tools/*.py` → `psp_translate/`)
 | Dari | Ke |
 |------|----|
-| `tools/char_table.py` | `psptranslationmod/codec/char_table.py` |
-| `tools/decode_evt.py` | `psptranslationmod/codec/decode.py` |
-| `tools/encode_evt.py` | `psptranslationmod/codec/encode.py` |
-| `tools/evt_header.py` | `psptranslationmod/evt/header.py` |
-| `tools/evt_parser.py` | `psptranslationmod/evt/parser.py` |
-| `tools/repack_evt.py` | `psptranslationmod/evt/repack.py` |
-| `tools/translation_budget.py` | `psptranslationmod/evt/budget.py` |
-| `tools/repack_fftpack.py` | `psptranslationmod/pack/fftpack.py` |
-| `tools/patch_iso.py` | `psptranslationmod/pack/iso.py` |
-| `tools/build_workspace.py` | `psptranslationmod/translate/workspace.py` |
-| `tools/translate_gemini.py` | `psptranslationmod/translate/gemini.py` |
-| `tools/translate_pipeline.py` | `psptranslationmod/translate/pipeline.py` |
-| `tools/lzw_extract.py` | `psptranslationmod/lzw/extract.py` |
-| `tools/explore.py` | `psptranslationmod/revtools/explore.py` |
-| `tools/font_render.py` | `psptranslationmod/revtools/font_render.py` |
-| `tools/extract_proper_nouns.py` | `psptranslationmod/revtools/proper_nouns.py` |
+| `tools/char_table.py` | `psp_translate/codec/char_table.py` |
+| `tools/decode_evt.py` | `psp_translate/codec/decode.py` |
+| `tools/encode_evt.py` | `psp_translate/codec/encode.py` |
+| `tools/evt_header.py` | `psp_translate/evt/header.py` |
+| `tools/evt_parser.py` | `psp_translate/evt/parser.py` |
+| `tools/repack_evt.py` | `psp_translate/evt/repack.py` |
+| `tools/translation_budget.py` | `psp_translate/evt/budget.py` |
+| `tools/repack_fftpack.py` | `psp_translate/pack/fftpack.py` |
+| `tools/patch_iso.py` | `psp_translate/pack/iso.py` |
+| `tools/build_workspace.py` | `psp_translate/translate/workspace.py` |
+| `tools/translate_gemini.py` | `psp_translate/translate/gemini.py` |
+| `tools/translate_pipeline.py` | `psp_translate/translate/pipeline.py` |
+| `tools/lzw_extract.py` | `psp_translate/lzw/extract.py` |
+| `tools/explore.py` | `psp_translate/revtools/explore.py` |
+| `tools/font_render.py` | `psp_translate/revtools/font_render.py` |
+| `tools/extract_proper_nouns.py` | `psp_translate/revtools/proper_nouns.py` |
 | `tools/test_stretch_path.py` | `tests/test_stretch_path.py` |
 
 ### Data sumber (`tools/*.json` → `data/`)
@@ -198,7 +198,7 @@ PspModTools/
 
 ## 6. `paths.py` terpusat (mengganti hardcode M7)
 
-Buat `psptranslationmod/paths.py` sebagai satu sumber kebenaran path. Sketsa:
+Buat `psp_translate/paths.py` sebagai satu sumber kebenaran path. Sketsa:
 
 ```python
 from pathlib import Path
@@ -266,28 +266,28 @@ git mv tools/font_renders/* build/font_renders/ 2>/dev/null || true
 Update sementara path lama di script agar menunjuk `data/` & `build/`.
 Gerbang regresi. Commit: `refactor: split data/ (source) and build/ (generated)`.
 
-### Fase 2 — Bentuk package `psptranslationmod/` (tanpa ubah logika)
+### Fase 2 — Bentuk package `psp_translate/` (tanpa ubah logika)
 - `mkdir` struktur + `__init__.py` tiap subfolder.
 - `git mv` tiap `.py` sesuai §5 (pertahankan history).
 - Ganti **semua** `sys.path.insert(...)` + `from encode_evt import ...` /
   `from decode_evt import ...` jadi import package:
-  `from psptranslationmod.codec.encode import encode_string, load_table`.
-- Buat `psptranslationmod/paths.py` (§6); ganti semua path hardcode.
+  `from psp_translate.codec.encode import encode_string, load_table`.
+- Buat `psp_translate/paths.py` (§6); ganti semua path hardcode.
 - Tambah **thin wrapper** sementara di `tools/<lama>.py`:
   ```python
-  from psptranslationmod.evt.repack import main  # contoh
+  from psp_translate.evt.repack import main  # contoh
   raise SystemExit(main())
   ```
   agar perintah & TUTORIAL lama tetap jalan selama transisi.
 - Pindah `test_stretch_path.py` → `tests/`, update import.
-Gerbang regresi. Commit: `refactor: move tools into psptranslationmod package`.
+Gerbang regresi. Commit: `refactor: move tools into psp_translate package`.
 
 ### Fase 3 — CLI tunggal + entry points
-- `psptranslationmod/cli.py`: subcommand `parse`, `budget`, `workspace`,
+- `psp_translate/cli.py`: subcommand `parse`, `budget`, `workspace`,
   `translate`, `repack`, `pipeline`, `verify`, `lzw`, `font`.
-- `pyproject.toml`: `[project.scripts]` → `psptranslationmod = "psptranslationmod.cli:main"`
+- `pyproject.toml`: `[project.scripts]` → `psp_translate = "psp_translate.cli:main"`
   (pertahankan `psp-modtool`).
-Gerbang regresi (`psptranslationmod verify`). Commit: `feat: unified psptranslationmod CLI`.
+Gerbang regresi (`psp_translate verify`). Commit: `feat: unified psp_translate CLI`.
 
 ### Fase 4 — Pindah docs & rapikan referensi
 ```bash
@@ -321,7 +321,7 @@ Gerbang regresi. Commit: `refactor: drop legacy tools/ wrappers; finalize struct
 | Perintah di TUTORIAL/README jadi salah | Sedang | Thin wrapper di Fase 2; update docs di Fase 4; hapus wrapper di Fase 5 |
 | Import melingkar saat pisah modul | Rendah | Layer satu arah: `codec` ⟵ `evt` ⟵ `pack`/`translate`; `paths` paling bawah |
 | `data/`-vs-`build/` salah klasifikasi | Sedang | Aturan: di-commit hanya kalau TIDAK regenerable (char_table, map, proper_nouns) |
-| macOS case-insensitive (folder huruf besar) | Rendah | Pakai `psptranslationmod` lowercase (keputusan #1) |
+| macOS case-insensitive (folder huruf besar) | Rendah | Pakai `psp_translate` lowercase (keputusan #1) |
 
 ---
 
@@ -340,7 +340,7 @@ Gerbang regresi. Commit: `refactor: drop legacy tools/ wrappers; finalize struct
 
 - [ ] Fase 0: untrack pycache + hapus artefak dev + hapus `translation_workspace.py`
 - [ ] Fase 1: `data/` + `build/` + `.gitignore build/` + path sementara → regresi
-- [ ] Fase 2: package `psptranslationmod/` + buang sys.path + `paths.py` + wrapper → regresi
+- [ ] Fase 2: package `psp_translate/` + buang sys.path + `paths.py` + wrapper → regresi
 - [ ] Fase 3: CLI tunggal + entry_points → regresi
 - [ ] Fase 4: pindah docs + `docs/TASK/` + update semua link → regresi
 - [ ] Fase 5: hapus wrapper + finalize docs → regresi

@@ -30,7 +30,7 @@ import time
 from pathlib import Path
 
 
-from psptranslationmod import paths
+from psp_translate import paths
 
 ORIGINAL_TEST_EVT = paths.ORIGINAL_TEST_EVT
 ORIGINAL_FFTPACK = paths.ORIGINAL_FFTPACK
@@ -209,7 +209,7 @@ def main() -> int:
     # Step 2: repack_evt — apply translations to TEST.EVT
     modified_evt = args.workdir / 'TEST_modified.evt'
     cmd = [
-        PY, '-m', 'psptranslationmod.evt.repack',
+        PY, '-m', 'psp_translate.evt.repack',
         str(ORIGINAL_TEST_EVT),
         str(EVENTS_PARSED),
         str(args.translations),
@@ -226,7 +226,7 @@ def main() -> int:
     # Step 3: patch fftpack.bin
     modified_fftpack = args.workdir / 'fftpack_modified.bin'
     cmd = [
-        PY, '-m', 'psptranslationmod.pack.fftpack',
+        PY, '-m', 'psp_translate.pack.fftpack',
         '--fftpack', str(ORIGINAL_FFTPACK),
         '--map', str(FFTPACK_MAP),
         '--substitute', f'TEST.EVT:{modified_evt}',
@@ -237,7 +237,7 @@ def main() -> int:
 
     # Step 4: patch ISO
     cmd = [
-        PY, '-m', 'psptranslationmod.pack.iso',
+        PY, '-m', 'psp_translate.pack.iso',
         '--iso', str(args.original_iso),
         '--substitute', f'fftpack.bin:{modified_fftpack}:{FFTPACK_ISO_OFFSET:#x}',
         '--output', str(args.output_iso),

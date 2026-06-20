@@ -35,7 +35,7 @@ import json
 import sys
 from pathlib import Path
 
-from psptranslationmod.codec.encode import encode_string, load_table as load_encode_table
+from psp_translate.codec.encode import encode_string, load_table as load_encode_table
 
 # Byte terminator end-of-string/bubble.
 BYTE_EOS = 0xFE
