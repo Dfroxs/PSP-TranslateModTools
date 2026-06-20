@@ -25,6 +25,7 @@ SUBCOMMANDS: dict[str, tuple[str, str]] = {
     'lzw-extract':      ('psp_translate.lzw.extract',              'Extract content from plain-text .LZW files'),
     'explore':          ('psp_translate.revtools.explore',         'Byte-level heuristic analyzer'),
     'font-render':      ('psp_translate.revtools.font_render',     'Render FONT.BIN to PGM grid'),
+    'script-check':     ('psp_translate.revtools.script_check',        'Cross-check blocks vs offline wiki script'),
     'proper-nouns':     ('psp_translate.revtools.proper_nouns',    'Extract proper nouns from WORLD.LZW'),
     'verify':           ('tests.test_stretch_path',                'Regression gate (stretch path + roundtrip)'),
 }
