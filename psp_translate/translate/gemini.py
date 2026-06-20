@@ -292,10 +292,10 @@ def build_user_message(batch: list[dict[str, Any]]) -> str:
     any_wiki = False
     for b in batch:
         # Prefer the real bubble byte budget; fall back to the estimate.
-        en_bytes = b.get('byte_length') or estimate_byte_length(b['en'])
+        en_bytes = model_budget(b) or estimate_byte_length(model_en(b))
         item = {
             'id': b['id'],
-            'en': b['en'],
+            'en': model_en(b),
             'max_bytes': en_bytes,  # CRITICAL: ID translation must NOT exceed this
         }
         if b.get('speaker'):
@@ -373,17 +373,26 @@ def finalize_translation(b: dict[str, Any], raw_id_text: str) -> tuple[str, list
 
     Returns (possibly-compacted id_text, flags). Shared by the first pass and
     the control-code retry pass so both go through identical post-processing.
+
+    For split bytecode-glued blocks (`_prefix`/`_tail`), the model only produced
+    the tail translation; we reattach the verbatim prefix and validate the FULL
+    reconstructed bubble (control codes + full byte budget).
     """
-    id_text = expand_abbreviations(raw_id_text, b['en'])
-    flags = validate_translation(b['en'], id_text)
+    src = model_en(b)                       # what the model translated (tail or full)
+    prefix = b.get('_prefix') or ''
+    tail = expand_abbreviations(raw_id_text, src)
+    full = prefix + tail
+    flags = validate_translation(b['en'], full)   # validate against FULL bubble
     budget = b.get('byte_length')
-    if budget and encoded_byte_length(id_text) > budget:
-        id_text, fits = compact_to_budget(id_text, budget, b['en'])
-        if not fits:
+    if budget and encoded_byte_length(full) > budget:
+        tail_budget = budget - (encoded_byte_length(prefix) if prefix else 0)
+        tail, fits = compact_to_budget(tail, tail_budget, src)
+        full = prefix + tail
+        if encoded_byte_length(full) > budget:
             flags = flags + [
-                f'overflow_byte_budget:{encoded_byte_length(id_text) - budget}'
+                f'overflow_byte_budget:{encoded_byte_length(full) - budget}'
             ]
-    return id_text, flags
+    return full, flags
 
 
 def has_control_error(flags: list[str]) -> bool:
@@ -400,11 +409,11 @@ def build_retry_message(batch: list[dict[str, Any]]) -> str:
     """
     items = []
     for b in batch:
-        required = dict(extract_control_codes(b['en']))
+        required = dict(extract_control_codes(model_en(b)))
         item = {
             'id': b['id'],
-            'en': b['en'],
-            'max_bytes': b.get('byte_length') or estimate_byte_length(b['en']),
+            'en': model_en(b),
+            'max_bytes': model_budget(b) or estimate_byte_length(model_en(b)),
             'required_control_codes': required,
             'previous_attempt': b.get('_retry_prev', ''),
         }
@@ -445,6 +454,62 @@ def call_gemini(client, model: str, system_prompt: str, user_msg: str,
         ),
     )
     return response.text or ''
+
+
+def _is_transient(e: Exception) -> bool:
+    """True for transient API failures worth retrying (overload / rate / 5xx)."""
+    s = str(e).lower()
+    return any(k in s for k in (
+        '503', 'unavailable', 'overloaded', '429', 'resource_exhausted',
+        'rate limit', '500', 'internal', 'deadline', 'timeout'))
+
+
+def call_gemini_retry(client, model, system_prompt, user_msg, max_tokens,
+                      sleep, tries: int = 4) -> str:
+    """call_gemini with exponential backoff on transient errors (503/429/5xx)."""
+    for attempt in range(tries):
+        try:
+            return call_gemini(client, model, system_prompt, user_msg, max_tokens)
+        except Exception as e:  # noqa: BLE001
+            if attempt < tries - 1 and _is_transient(e):
+                wait = max(sleep, 2.0) * (2 ** attempt)
+                print(f'  transient API error ({type(e).__name__}); '
+                      f'retry {attempt + 1}/{tries - 1} in {wait:.0f}s...',
+                      file=sys.stderr)
+                time.sleep(wait)
+                continue
+            raise
+
+
+def translate_batch(client, model, system_prompt, batch, max_tokens,
+                    sleep) -> dict[int, str]:
+    """Translate one batch → {id: id_text}, resilient to transient + JSON errors.
+
+    - Transient API errors (503/429/5xx) are retried with backoff.
+    - A truncated/invalid JSON response (common when a batch is too large for the
+      output-token limit) is recovered by SPLITTING the batch in half and
+      translating each half separately — so a big batch degrades gracefully
+      instead of dropping every block to 'error'.
+    """
+    raw = call_gemini_retry(client, model, system_prompt,
+                            build_user_message(batch), max_tokens, sleep)
+    try:
+        parsed = parse_gemini_response(raw)
+    except json.JSONDecodeError:
+        if len(batch) <= 1:
+            raise
+        mid = (len(batch) + 1) // 2
+        print(f'  JSON parse failed (n={len(batch)}); splitting into '
+              f'{mid}+{len(batch) - mid} and retrying', file=sys.stderr)
+        out: dict[int, str] = {}
+        out.update(translate_batch(client, model, system_prompt,
+                                   batch[:mid], max_tokens, sleep))
+        time.sleep(sleep)
+        out.update(translate_batch(client, model, system_prompt,
+                                   batch[mid:], max_tokens, sleep))
+        return out
+    return {it['id']: it.get('id_text', '') for it in parsed
+            if isinstance(it, dict) and 'id' in it}
 
 
 def parse_gemini_response(raw: str) -> list[dict[str, Any]]:
@@ -537,6 +602,44 @@ def looks_like_dialog(en: str) -> bool:
     return True
 
 
+def split_bytecode_prefix(en: str):
+    """For a bytecode-glued bubble, split into (prefix, tail) at the `<db>` mark.
+
+    Some bubbles are mis-parsed: a long executable-bytecode prefix with the real
+    renderable dialogue/narration glued on after a `<db>` marker (the bytecode→
+    text boundary, e.g. `...<db><SPEAKER>Agrias...` or `...<db><PRAYER>Records...`).
+    These fail `looks_like_dialog` (digits dominate) and would otherwise be
+    skipped. We keep the prefix BYTE-VERBATIM (it is never sent to the model — the
+    encoder roundtrips it exactly) and translate ONLY the tail, then reattach the
+    prefix. (This implements the "send Gemini just the English, reassemble after"
+    recovery.)
+
+    Returns (prefix, tail) if a recoverable dialogue tail is found, else None.
+    """
+    idx = en.rfind('<db>')
+    if idx == -1:
+        return None
+    cut = idx + len('<db>')
+    prefix, tail = en[:cut], en[cut:]
+    if not ('<SPEAKER>' in tail or '<PRAYER>' in tail):
+        return None
+    if not looks_like_dialog(tail):
+        return None
+    return prefix, tail
+
+
+def model_en(b: dict[str, Any]) -> str:
+    """Text the model actually translates (the tail, for split bytecode blocks)."""
+    return b.get('_tail') or b['en']
+
+
+def model_budget(b: dict[str, Any]):
+    """Byte budget for the model's portion (tail budget for split blocks)."""
+    if b.get('_prefix') is not None:
+        return b.get('_tail_budget')
+    return b.get('byte_length')
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -596,17 +699,34 @@ def main() -> int:
     # API (they corrupt the batch's JSON) and never retried on resume. repack
     # leaves their original bytes intact.
     newly_skipped = 0
+    recovered = 0
     for b in selected:
         entry = merged[by_id_idx[b['id']]]
         if entry['status'] in ('auto', 'approved', 'skip'):
             continue
         if not looks_like_dialog(b['en']):
+            # Recovery: bytecode-glued bubble with real dialogue after a <db>
+            # marker — translate only the tail, keep the prefix verbatim.
+            sp = split_bytecode_prefix(b['en'])
+            if sp:
+                prefix, tail = sp
+                full_budget = b.get('byte_length')
+                pre_len = encoded_byte_length(prefix)
+                # Recoverable only if the prefix fits and leaves room for a tail.
+                if full_budget and pre_len < full_budget:
+                    b['_prefix'], b['_tail'] = prefix, tail
+                    b['_tail_budget'] = full_budget - pre_len
+                    recovered += 1
+                    continue
             entry['status'] = 'skip'
             entry['flags'] = ['non_dialog']
             newly_skipped += 1
     if newly_skipped:
         print(f'Skipping {newly_skipped} non-dialog/garbage blocks (kept as-is).')
         save_output(args.output, build_metadata(args, total, merged), merged)
+    if recovered:
+        print(f'Recovered {recovered} bytecode-glued block(s): translating dialogue '
+              f'tail only, prefix kept verbatim.')
 
     # Filter to-translate: in range + not yet auto/approved/skip
     to_translate = [
@@ -624,7 +744,7 @@ def main() -> int:
     if wiki:
         grounded = 0
         for b in to_translate:
-            w, score = wiki_ref.match_block(b['en'], wiki)
+            w, score = wiki_ref.match_block(model_en(b), wiki)
             if w is not None:
                 b['wiki_ref'] = w['en']
                 grounded += 1
@@ -677,37 +797,20 @@ def main() -> int:
             continue
 
         try:
-            raw = call_gemini(client, args.model, system_prompt, user_msg,
-                              args.max_output_tokens)
+            by_id_response = translate_batch(
+                client, args.model, system_prompt, batch,
+                args.max_output_tokens, args.sleep)
         except Exception as e:  # noqa: BLE001
-            print(f'  API error: {e}', file=sys.stderr)
+            print(f'  batch failed after retries: {type(e).__name__}: {e}',
+                  file=sys.stderr)
             for b in batch:
                 idx = by_id_idx[b['id']]
                 merged[idx]['status'] = 'error'
                 merged[idx]['flags'] = [f'api_error:{type(e).__name__}']
-            # Save partial progress
             metadata = build_metadata(args, total, merged)
             save_output(args.output, metadata, merged)
             time.sleep(args.sleep)
             continue
-
-        try:
-            parsed = parse_gemini_response(raw)
-        except json.JSONDecodeError as e:
-            print(f'  Failed to parse JSON response: {e}', file=sys.stderr)
-            print(f'  Raw response (first 500): {raw[:500]}', file=sys.stderr)
-            for b in batch:
-                idx = by_id_idx[b['id']]
-                merged[idx]['status'] = 'error'
-                merged[idx]['flags'] = ['invalid_json_response']
-            metadata = build_metadata(args, total, merged)
-            save_output(args.output, metadata, merged)
-            time.sleep(args.sleep)
-            continue
-
-        # Build id -> id_text map
-        by_id_response = {item['id']: item.get('id_text', '') for item in parsed
-                          if isinstance(item, dict) and 'id' in item}
 
         # First pass: post-process each block (status assigned after retry).
         for b in batch:
@@ -730,15 +833,15 @@ def main() -> int:
         ]
         if retry_blocks:
             for b in retry_blocks:
-                b['_retry_prev'] = merged[by_id_idx[b['id']]].get('id_auto') or ''
+                b['_retry_prev'] = by_id_response.get(b['id'], '')
             print(f'  control-code retry: {len(retry_blocks)} block(s) '
                   f'(ids {", ".join(str(b["id"]) for b in retry_blocks)})')
             time.sleep(args.sleep)  # respect RPM before the extra call
             rmap: dict[int, str] = {}
             try:
-                rraw = call_gemini(client, args.model, system_prompt,
-                                   build_retry_message(retry_blocks),
-                                   args.max_output_tokens)
+                rraw = call_gemini_retry(client, args.model, system_prompt,
+                                         build_retry_message(retry_blocks),
+                                         args.max_output_tokens, args.sleep)
                 rparsed = parse_gemini_response(rraw)
                 rmap = {it['id']: it.get('id_text', '') for it in rparsed
                         if isinstance(it, dict) and 'id' in it}

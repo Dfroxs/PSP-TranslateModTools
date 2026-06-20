@@ -559,9 +559,16 @@ CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
   dilokalkan; `Order`→"Ordo", `Corpse Brigade`→"Pasukan Mayat", nama institusi
   spt `Akademy` tetap English. Konfirmasi per-term saat review.
 - **Diketahui aman**: sebagian bubble adalah bytecode-glued (mis-parsed: bytecode
-  + dialog tail) → di-`skip`; baris itu tetap English in-game (tidak korup).
-- **Berikutnya**: chapter 03+ (saran `--batch 8`). Nice-to-have: auto-retry untuk
-  error transient 503/JSON di `gemini.py` (sekarang masih perlu re-run manual).
+  + dialog tail). Sekarang **di-recover** otomatis: split di marker `<db>`, prefix
+  bytecode disimpan verbatim + hanya tail dialog ditranslate lalu direkonstruksi &
+  divalidasi penuh; gagal → fallback skip (tetap English, aman).
+- **Robustness gemini.py (2026-06-21)**: (a) transient auto-retry — backoff utk
+  503/429/5xx + split-batch saat JSON truncated (tak lagi drop ke `error`);
+  (b) recovery bytecode-glued di atas; (c) `psp-translate review-apply` auto-apply
+  precedent proper-noun (Order→Ordo, Corpse Brigade→Pasukan Mayat, Akademy English)
+  → approve blok yg flag-nya tinggal precedent, sisakan overflow + proper-noun BARU
+  untuk review manusia.
+- **Berikutnya**: chapter 03+ dgn alur `gemini` → `review-apply` → review sisa.
 
 **Track B — Distribution (Fase 6 leftover + new)**
 - `xdelta3` patch generator (TODO: `psp_translate/xdelta_build.py`)

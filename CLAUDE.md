@@ -91,6 +91,22 @@ python -m psp_translate fftpack --fftpack extracted/.../fftpack.bin --map data/f
 python -m psp_translate iso --iso "FFT.iso" --substitute fftpack.bin:modified_fftpack.bin:0x02c20000 --output FFT_ID.iso
 ```
 
+**Review web UI** (translation review):
+```bash
+# Local browser UI to translate / preview / edit / review chapters.
+# Stdlib http.server only (no pip/npm). Needs GEMINI_API_KEY for translate+chat.
+python -m psp_translate webui [--host 127.0.0.1] [--port 8000]
+```
+Single-page app served from `psp_translate/webui/static/index.html`; backend in
+`psp_translate/webui/server.py`. Wraps existing subcommands as streamed
+subprocess jobs (live log via SSE): "Full Translate" → `gemini`, "Script Check"
+→ `script-check`. Per-block editor renders an FFT-style dialog preview, shows
+the real encoded byte budget (`/api/byte-length` → `codec.encode`), and writes
+`id_final`/`status` back to `chapter_NN.out.json`. Filter tabs map status →
+bucket: `approved`→Done, `auto`/`needs_review`/`pending`→Review, `error`→Error,
+`skip`→Skip (mirror this mapping in both `server.py` and `index.html` if you
+change it). In-app chat reuses `google.genai`.
+
 Regression gate: `python -m psp_translate verify` (or `psp-translate verify` after install) runs `tests/test_stretch_path.py` — verifies stretch path + identity roundtrip across 19,925 bubbles without booting PPSSPP. No linter or build script.
 
 ## Architecture
@@ -195,19 +211,28 @@ Multi-byte:
 - **Wiki-grounded translation (`translate/gemini.py`)**: each block is matched to
   its canonical Final Fantasy Wiki line (`wiki_ref`) and the model translates that
   clean meaning (anti-noise/anti-hallucination), while still preserving `en`'s
-  control codes and fitting the bubble byte budget. Two control-code safety layers:
-  (1) **auto-retry** — a block that drops/alters `<...>` is re-sent once and only
-  adopted if the codes are then correct; (2) the pipeline **ABORT** above. Result:
-  `id_auto`/`id_final` should never carry a control-code mismatch.
-- **Style precedent (chapter 01-02 review)**: honorifics may be localized; `Order`
-  →"Ordo", `Corpse Brigade`→"Pasukan Mayat", institution names like `Akademy` stay
-  English. The hardcoded proper-noun validator flags these for human review — they
-  are style calls, not errors. Confirm per-term during review.
-- **Bytecode-glued bubbles**: some bubbles are mis-parsed (bytecode prefix + real
-  dialogue at the tail, e.g. prayers/narration). `looks_like_dialog` marks them
-  `skip`, so that line stays English in-game — the SAFE choice, since translating
-  would require the model to reproduce hundreds of bytecode bytes verbatim. Fixing
-  this properly needs a parser split (out of scope for translation).
+  control codes and fitting the bubble byte budget. Three robustness layers:
+  (1) **control-code auto-retry** — a block that drops/alters `<...>` is re-sent
+  once and only adopted if the codes are then correct; (2) **transient auto-retry**
+  — `call_gemini_retry` backs off on 503/429/5xx; `translate_batch` splits a batch
+  in half when the JSON reply is truncated (so a too-large batch degrades instead
+  of dropping every block to `error`); (3) the pipeline **ABORT** on any remaining
+  control-code mismatch. Result: `id_auto`/`id_final` should never carry a
+  control-code mismatch.
+- **Bytecode-glued bubble recovery (`split_bytecode_prefix`)**: some bubbles are
+  mis-parsed — a long executable-bytecode prefix with real dialogue glued on after
+  a `<db>` marker. Instead of skipping, the prefix is kept **byte-verbatim** (never
+  sent to the model; the encoder roundtrips it exactly) and ONLY the dialogue tail
+  is translated, then reattached and validated against the FULL bubble (control
+  codes + byte budget). If reconstruction is invalid it falls back to `skip` (line
+  stays English — safe). Pure-garbage bubbles (no `<db>`+dialogue tail) still skip.
+- **Style precedent (chapter 01-02 review) + `review-apply`**: honorifics may be
+  localized; `Order`→"Ordo", `Corpse Brigade`→"Pasukan Mayat", institution names
+  like `Akademy` stay English. `psp-translate review-apply <chapter.out.json|dir>`
+  auto-applies these precedents to `needs_review` blocks and APPROVES the ones
+  whose only flags were precedent proper nouns — leaving human review for byte
+  overflow + genuinely NEW proper nouns. Re-validates byte budget + control codes
+  before approving.
 - Always test repacked ISOs in PPSSPP.
 
 ## Reference files
