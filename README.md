@@ -23,6 +23,26 @@ Proyek ini punya **dua lapis**:
 
 ---
 
+## Struktur proyek
+
+```
+PspModTools/
+├── psp_modtool/        # Bagian 1 — CLI generik ISO 9660 / UMD (pure stdlib)
+├── psp_translate/      # Bagian 2 — FFT WoTL toolkit (17 subcommand `psp-translate`)
+├── data/               # Source-of-truth versioned: char_table.json,
+│                       #   fftpack_event_map.json, proper_nouns.json
+├── build/              # Generated, gitignored: events_parsed.json,
+│                       #   *.lzw extracts, font renders, decoded dumps
+├── docs/               # TUTORIAL · DocumentOfComunity · gemini_prompt_template
+│   ├── formats/        # EVT_FORMAT.md · LZW_FORMAT.md
+│   └── TASK/           # TODO_PLAN.md · REFACTOR_PLAN.md
+├── tests/              # Regression: test_stretch_path.py (`psp-translate verify`)
+├── main.py             # Entry untuk psp_modtool generic CLI
+└── pyproject.toml      # `pip install -e .` → memasang `psp-modtool` + `psp-translate`
+```
+
+---
+
 ## Bagian 1 — CLI generik (`psp_modtool`)
 
 ### Struktur
@@ -39,7 +59,8 @@ PspModTools/
     │   ├── scanner.py       # Deteksi teks dalam file
     │   ├── translator.py    # Terapkan terjemahan
     │   ├── repacker.py      # Folder → ISO
-    │   └── pipeline.py      # Alur lengkap interaktif
+    │   ├── pipeline.py      # Alur lengkap interaktif
+    │   └── inspector.py     # Heuristik kelayakan ISO (sebelum extract penuh)
     └── utils/               # Pendukung (constants, logger, text_detect)
 ```
 
@@ -74,7 +95,9 @@ terjemahan, lalu lanjut otomatis.
 
 ```bash
 pip install -e .
-psp-modtool extract game.iso ./extracted
+# Memasang DUA console script sekaligus (dari pyproject.toml):
+psp-modtool   extract game.iso ./extracted       # Bagian 1 — generic ISO
+psp-translate verify                              # Bagian 2 — FFT WoTL toolkit
 ```
 
 ### Format strings.json
@@ -144,6 +167,22 @@ export GEMINI_API_KEY="AIza..."     # sesi sementara
 ```
 
 Gunakan `--dry-run` untuk melihat prompt tanpa memakai kuota API.
+
+### Sebagai package terpasang
+
+`pip install -e .` (dari Bagian 1) sudah memasang **dua** console script.
+Setelah install, `python -m psp_translate <sub>` boleh disingkat jadi
+`psp-translate <sub>`:
+
+```bash
+psp-translate                                 # daftar 17 subcommand
+psp-translate verify                          # regression gate (stretch + roundtrip)
+psp-translate decode <evt> data/char_table.json --search "Father"
+psp-translate pipeline \
+    --translations workspace/chapter_01.out.json \
+    --original-iso "games/FFT WoTL.iso" \
+    --output-iso /tmp/FFT_ID.iso
+```
 
 ### Reverse engineering tools
 
