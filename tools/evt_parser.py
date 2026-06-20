@@ -210,8 +210,8 @@ def main() -> int:
     ap.add_argument(
         "--table",
         type=Path,
-        default=Path(__file__).parent / "char_table.json",
-        help="char_table.json path (default: tools/char_table.json)",
+        default=Path(__file__).parent.parent / "data" / "char_table.json",
+        help="char_table.json path (default: data/char_table.json)",
     )
     ap.add_argument(
         "--event-id",

@@ -35,8 +35,8 @@ from decode_evt import decode, load_table as load_decode_table  # noqa: E402
 
 ROOT = Path(__file__).parent.parent
 TEST_EVT = ROOT / 'extracted' / 'FFTPACK_Extracted' / 'EVENT' / 'TEST.EVT'
-EVENTS_PARSED = ROOT / 'tools' / 'events_parsed.json'
-CHAR_TABLE = ROOT / 'tools' / 'char_table.json'
+EVENTS_PARSED = ROOT / 'build' / 'events_parsed.json'
+CHAR_TABLE = ROOT / 'data' / 'char_table.json'
 
 TRANSLATABLE_KINDS = {'text', 'narration', 'speaker'}
 

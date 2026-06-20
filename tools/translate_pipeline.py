@@ -32,16 +32,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 TOOLS_DIR = ROOT / 'tools'
+DATA_DIR = ROOT / 'data'
+BUILD_DIR = ROOT / 'build'
 EXTRACTED_DIR = ROOT / 'extracted'
 
 
 # Standard paths
 ORIGINAL_TEST_EVT = EXTRACTED_DIR / 'FFTPACK_Extracted' / 'EVENT' / 'TEST.EVT'
 ORIGINAL_FFTPACK = EXTRACTED_DIR / 'PSP_GAME' / 'USRDIR' / 'fftpack.bin'
-EVENTS_PARSED = TOOLS_DIR / 'events_parsed.json'
-CHAR_TABLE = TOOLS_DIR / 'char_table.json'
-FFTPACK_MAP = TOOLS_DIR / 'fftpack_event_map.json'
-PROPER_NOUNS = TOOLS_DIR / 'proper_nouns.json'
+EVENTS_PARSED = BUILD_DIR / 'events_parsed.json'
+CHAR_TABLE = DATA_DIR / 'char_table.json'
+FFTPACK_MAP = DATA_DIR / 'fftpack_event_map.json'
+PROPER_NOUNS = DATA_DIR / 'proper_nouns.json'
 
 # Standard ISO location of fftpack.bin
 FFTPACK_ISO_OFFSET = 0x02c20000

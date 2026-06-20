@@ -69,7 +69,7 @@ def is_valid_proper_noun(s: str) -> bool:
 
 
 def main():
-    world = json.loads((ROOT / 'tools' / 'lzw_WORLD.json').read_text())
+    world = json.loads((ROOT / 'build' / 'lzw_WORLD.json').read_text())
 
     nouns_by_category: dict[str, set[str]] = {}
     for entry in world['entries']:
@@ -93,7 +93,7 @@ def main():
         'all_unique': sorted(set().union(*nouns_by_category.values())),
     }
 
-    out = ROOT / 'tools' / 'proper_nouns.json'
+    out = ROOT / 'data' / 'proper_nouns.json'
     out.write_text(json.dumps(result, indent=2, ensure_ascii=False))
 
     print(f'Saved: {out}')
