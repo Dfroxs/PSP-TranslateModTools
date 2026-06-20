@@ -167,7 +167,12 @@ def build_user_message(batch: list[dict[str, Any]]) -> str:
         'nouns per the rules.\n\n'
         'CRITICAL: Each block has a `max_bytes` field. Your `id_text` must NOT '
         'exceed `max_bytes` (estimate: 1 char ≈ 1 byte). Prefer shorter ID over '
-        'literal accuracy — overflow = block dropped from final patch.\n\n'
+        'literal accuracy — overflow = block dropped from final patch.\n'
+        'If a translation would overflow, use COMMON Indonesian abbreviations '
+        '(yang→yg, dengan→dgn, untuk→utk, tidak→tak, sudah→sdh, dalam→dlm, '
+        'karena→krn, kepada→kpd) — ONLY when needed to fit, and NEVER in a way '
+        'that changes the meaning of the story. Do not abbreviate proper nouns '
+        'or control codes.\n\n'
         f'{js}'
     )
 

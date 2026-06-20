@@ -17,6 +17,7 @@ tools/font_renders/
 # Translation outputs (regenerable + user-specific)
 tools/translation_sample.json
 tools/translation_workspace/
+workspace/
 
 # Test artifacts dari development
 tools/*_trans.json
