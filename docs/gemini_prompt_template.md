@@ -1,6 +1,6 @@
 # Gemini Prompt Template — FFT WoTL EN→ID Translation
 
-Prompt template yang dipakai oleh `tools/translate_gemini.py`. Disimpan terpisah supaya gampang di-tweak tanpa edit kode.
+Prompt template yang dipakai oleh `psp_translate/translate/gemini.py`. Disimpan terpisah supaya gampang di-tweak tanpa edit kode.
 
 Terdiri dari **system instruction** (constant, di-cache via Gemini context cache) dan **user content** (per-batch dialog blocks).
 

@@ -7,31 +7,8 @@ strings.json
 __pycache__/
 *.pyc
 
-# Build artifacts (generated, regenerable via tools)
+# Build artifacts (generated, regenerable via psp-translate)
 build/
 
-# Large derived files (regenerable via tools)
-tools/TEST_EVT_decoded.txt
-tools/TEST_EVT_dialog_only.txt
-tools/events_parsed.json
-tools/font_renders/
-
 # Translation outputs (regenerable + user-specific)
-tools/translation_sample.json
-tools/translation_workspace/
 workspace/
-
-# Test artifacts dari development
-tools/*_trans.json
-tools/*_test.json
-tools/identity_*.json
-tools/multi_trans.json
-tools/prayer_trans.json
-tools/progress_test.json
-tools/stretch_test.json
-tools/test_translation.json
-tools/e2e_trans.json
-tools/empty_trans.json
-tools/sample_translation.json
-tools/retest_dialog.json
-tools/retest_prayer.json

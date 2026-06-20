@@ -201,7 +201,7 @@ huruf English:
 - `o` (0x32) = 51K, `t` (0x37) = 45K, `a` (0x24) = 40K
 - `i` (0x2c), `r` (0x35), `n` (0x31), `s` (0x36), `h` (0x2b) urut frekuensi
 
-Disimpan di `tools/char_table.json`.
+Disimpan di `data/char_table.json`.
 
 ### 8.3 Encoding TEST.EVT (parsial)
 
@@ -226,12 +226,12 @@ Top byte 0xD1, 0xD2, 0xD3, 0xFE menunjukkan file-file berikut pakai encoding sam
 
 | Path | Fungsi |
 |------|--------|
-| `tools/explore.py` | Scanner heuristik byte stats + ASCII run untuk file biner |
-| `tools/font_render.py` | Render FONT.BIN ke PGM dengan format yang sudah diketahui |
-| `tools/char_table.py` | Build & maintain char_table.json |
-| `tools/char_table.json` | Mapping glyph index → karakter (62 confirmed) |
-| `tools/font_renders/` | PGM output untuk inspeksi visual |
-| `tools/font_renders/glyph_dump.txt` | ASCII art tiap glyph (referensi visual) |
+| `psp_translate/revtools/explore.py` | Scanner heuristik byte stats + ASCII run untuk file biner |
+| `psp_translate/revtools/font_render.py` | Render FONT.BIN ke PGM dengan format yang sudah diketahui |
+| `psp_translate/codec/char_table.py` | Build & maintain char_table.json |
+| `data/char_table.json` | Mapping glyph index → karakter (62 confirmed) |
+| `build/font_renders/` | PGM output untuk inspeksi visual |
+| `build/font_renders/glyph_dump.txt` | ASCII art tiap glyph (referensi visual) |
 
 ### 8.6 BREAKTHROUGH: Dialog TEST.EVT Berhasil Di-Decode
 
@@ -275,9 +275,9 @@ scene Ziekden/Tietra, dan dialog karakter sepanjang game.
 
 | Path | Fungsi |
 |------|--------|
-| `tools/decode_evt.py` | Decoder lengkap dengan multi-byte support + search |
-| `tools/TEST_EVT_decoded.txt` | Full decoded TEST.EVT (5.9 MB) |
-| `tools/TEST_EVT_dialog_only.txt` | Dialog-only ekstrak (844 KB) |
+| `psp_translate/codec/decode.py` | Decoder lengkap dengan multi-byte support + search |
+| `build/TEST_EVT_decoded.txt` | Full decoded TEST.EVT (5.9 MB) |
+| `build/TEST_EVT_dialog_only.txt` | Dialog-only ekstrak (844 KB) |
 
 ### 8.7 Status pekerjaan (updated 2026-06-19)
 
@@ -288,11 +288,11 @@ Hampir semua estimasi awal **berhasil di-resolve lebih cepat** dari yang diperki
 | ~~Identifikasi font format~~ | ✅ Done | 10×14 px @ 2bpp, 35 B/glyph |
 | ~~Char table dasar (digit + A-Z + a-z)~~ | ✅ Done | 62 chars verified |
 | ~~Punctuation utama~~ | ✅ Done | 70 single-byte + 6 multi-byte total |
-| ~~Decoder dengan multi-byte support~~ | ✅ Done | tools/decode_evt.py |
+| ~~Decoder dengan multi-byte support~~ | ✅ Done | psp_translate/codec/decode.py |
 | ~~Punctuation tersisa~~ | ✅ Done | `:`, `"`, `—`, `ú`, `-`, ... |
 | Parse semantik control codes (color, delay) | ⏳ Partial | Phase 7 (runtime test) |
 | ~~Pointer table parser di TEST.EVT header~~ | ✅ Done | Tidak ada global table — 231 event chunks 0x800-aligned |
-| **~~Encoder ID→bytes~~** | ✅ Done | **100% lossless** (tools/encode_evt.py) |
+| **~~Encoder ID→bytes~~** | ✅ Done | **100% lossless** (psp_translate/codec/encode.py) |
 | LZW decompressor untuk .LZW files | ⏳ Partial | 3/7 plain text, 4 compressed TODO |
 | ~~Repacker FFTPACK + ISO~~ | ✅ Done | Byte-level patch (no rebuild needed) |
 
@@ -303,11 +303,11 @@ Setelah Phase 5+6 selesai, kita punya **full translation pipeline byte-level** y
 ```
 Translation JSON (Gemini auto / human)
        ↓
-tools/repack_evt.py        → modified TEST.EVT (same 7.6 MB)
+psp_translate/evt/repack.py        → modified TEST.EVT (same 7.6 MB)
        ↓
-tools/repack_fftpack.py    → modified fftpack.bin (same 210 MB)
+psp_translate/pack/fftpack.py    → modified fftpack.bin (same 210 MB)
        ↓
-tools/patch_iso.py         → modified ISO (same 418 MB)
+psp_translate/pack/iso.py         → modified ISO (same 418 MB)
        ↓
 PPSSPP (boot & verify)
 ```
@@ -321,7 +321,7 @@ PPSSPP (boot & verify)
 
 #### File mapping di fftpack.bin (42 dari 44 EVENT files)
 
-Lengkap di `tools/fftpack_event_map.json`. Highlight:
+Lengkap di `data/fftpack_event_map.json`. Highlight:
 - `TEST.EVT` @ 0x00361800 (7.6 MB, dialog cerita)
 - `WORLD.LZW` @ 0x00dab800 (job/spell/character/place names)
 - `ATCHELP.LZW` @ 0x00d83000 (battle command tutorials)
@@ -391,13 +391,13 @@ paling visible (intro/cutscene), prioritaskan di awal.
 
 ```bash
 # 1. Build workspace dari events_parsed.json
-python tools/build_workspace.py tools/events_parsed.json workspace/ --filter-quality
+python -m psp_translate workspace build/events_parsed.json workspace/ --filter-quality
 
 # 2. Translate (manual edit chapter_*.json atau Gemini auto)
-python tools/translate_gemini.py workspace/chapter_01.json workspace/chapter_01.json
+python -m psp_translate gemini workspace/chapter_01.json workspace/chapter_01.json
 
 # 3. Apply ke ISO
-python tools/translate_pipeline.py \
+python -m psp_translate pipeline \
     --translations workspace/ \
     --original-iso games/FFT_WoTL.iso \
     --output-iso FFT_WoTL_ID.iso

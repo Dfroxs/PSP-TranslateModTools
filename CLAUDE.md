@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Two layers:
 
 1. **`psp_modtool/`** — generic Python CLI to extract, scan, translate, and repack PSP ISO files (ISO 9660 / UMD), aimed at game localization. Pure stdlib, Python ≥ 3.8.
-2. **`tools/`** — game-specific reverse engineering & translation tools for **Final Fantasy Tactics: The War of the Lions (PSP)**. Custom decoder, font analyzer, character table builder. Pure stdlib.
+2. **`psp_translate/`** — game-specific reverse engineering & translation tools for **Final Fantasy Tactics: The War of the Lions (PSP)**. Custom decoder, font analyzer, character table builder. Pure stdlib. Single CLI entry: `psp-translate <subcommand>` (or `python -m psp_translate <subcommand>` without install).
 
 Active focus: EN → ID translation of FFT WoTL. See `docs/TASK/TODO_PLAN.md` for roadmap and `docs/DocumentOfComunity.md` for community research & internal reverse engineering findings.
 
@@ -29,66 +29,66 @@ Subcommands (see `psp_modtool/cli.py`):
 - `repack <folder> <out.iso>` — rebuild ISO from folder
 - `all <iso> <workdir>` — interactive full pipeline
 
-### FFT WoTL tools (tools/)
+### FFT WoTL tools (psp_translate/)
 
 **Translation pipeline (end-to-end)**:
 ```bash
 # Single-command: translations → modified ISO
-python tools/translate_pipeline.py \
+python -m psp_translate pipeline \
     --translations <translations.json or workspace_dir/> \
     --original-iso "games/FFT WoTL.iso" \
     --output-iso /tmp/FFT_ID.iso
 
 # Build translation workspace (45 chunks of 100 blocks each)
-python tools/build_workspace.py tools/events_parsed.json workspace/ --filter-quality
+python -m psp_translate workspace build/events_parsed.json workspace/ --filter-quality
 
 # Gemini auto-translate (needs GEMINI_API_KEY env var)
-python tools/translate_gemini.py workspace/chapter_01.json out.json --end 10
+python -m psp_translate gemini workspace/chapter_01.json out.json --end 10
 ```
 
 **Reverse engineering tools**:
 ```bash
 # Heuristic byte stats for any binary
-python tools/explore.py <folder-or-file> [--min-len N]
+python -m psp_translate explore <folder-or-file> [--min-len N]
 
 # Render FONT.BIN to PGM (10x14 px @ 2bpp confirmed format)
-python tools/font_render.py <FONT.BIN> <out.pgm> [--cols 32] [--scale 4]
+python -m psp_translate font-render <FONT.BIN> <out.pgm> [--cols 32] [--scale 4]
 
 # Manage character mapping table
-python tools/char_table.py init <out.json>
-python tools/char_table.py dump <font.bin> <table.json> <out.txt>
-python tools/char_table.py set <table.json> <index> <char>
-python tools/char_table.py stats <table.json>
+python -m psp_translate char-table init <out.json>
+python -m psp_translate char-table dump <font.bin> <table.json> <out.txt>
+python -m psp_translate char-table set <table.json> <index> <char>
+python -m psp_translate char-table stats <table.json>
 
 # Decode TEST.EVT (or similar FFT files) to readable English
-python tools/decode_evt.py <file.evt> tools/char_table.json [--offset 0x5800] [--length 1024]
-python tools/decode_evt.py <file.evt> tools/char_table.json --search "Father"
-python tools/decode_evt.py <file.evt> tools/char_table.json --full  # decode entire file
+python -m psp_translate decode <file.evt> data/char_table.json [--offset 0x5800] [--length 1024]
+python -m psp_translate decode <file.evt> data/char_table.json --search "Father"
+python -m psp_translate decode <file.evt> data/char_table.json --full  # decode entire file
 
 # Parse TEST.EVT structure (231 event chunks, 24K bubbles)
-python tools/evt_header.py extracted/.../TEST.EVT --output tools/evt_structure.json
-python tools/evt_parser.py extracted/.../TEST.EVT tools/evt_structure.json --output tools/events_parsed.json
+python -m psp_translate evt-header extracted/.../TEST.EVT --output build/evt_structure.json
+python -m psp_translate evt-parse extracted/.../TEST.EVT build/evt_structure.json --output build/events_parsed.json
 
 # Extract content from plain-text .LZW files (WORLD/OPEN/ATCHELP)
-python tools/lzw_extract.py extracted/.../WORLD.LZW tools/char_table.json --output out.json
+python -m psp_translate lzw-extract extracted/.../WORLD.LZW data/char_table.json --output out.json
 
 # Generate per-bubble byte budget (translator constraint reference)
-python tools/translation_budget.py extracted/.../TEST.EVT tools/events_parsed.json tools/char_table.json --output tools/translation_budget.json
+python -m psp_translate budget extracted/.../TEST.EVT build/events_parsed.json data/char_table.json --output build/translation_budget.json
 ```
 
 **Encoder & repack tools** (Phase 5+6):
 ```bash
 # Encode text → bytes (lossless, verified roundtrip)
-python tools/encode_evt.py <input.txt> tools/char_table.json [--output out.bin]
+python -m psp_translate encode <input.txt> data/char_table.json [--output out.bin]
 
 # Apply translations to TEST.EVT (in-place substitution)
-python tools/repack_evt.py extracted/.../TEST.EVT tools/events_parsed.json <translations.json> tools/char_table.json --output modified.evt [--allow-stretch] [--allow-truncate]
+python -m psp_translate evt-repack extracted/.../TEST.EVT build/events_parsed.json <translations.json> data/char_table.json --output modified.evt [--allow-stretch] [--allow-truncate]
 
 # Patch fftpack.bin with modified files
-python tools/repack_fftpack.py --fftpack extracted/.../fftpack.bin --map tools/fftpack_event_map.json --substitute TEST.EVT:modified.evt --output modified_fftpack.bin
+python -m psp_translate fftpack --fftpack extracted/.../fftpack.bin --map data/fftpack_event_map.json --substitute TEST.EVT:modified.evt --output modified_fftpack.bin
 
 # Patch ISO directly (size-preserving, no full rebuild)
-python tools/patch_iso.py --iso "FFT.iso" --substitute fftpack.bin:modified_fftpack.bin:0x02c20000 --output FFT_ID.iso
+python -m psp_translate iso --iso "FFT.iso" --substitute fftpack.bin:modified_fftpack.bin:0x02c20000 --output FFT_ID.iso
 ```
 
 No test suite, linter, or build script defined.
@@ -109,15 +109,15 @@ Pipeline stages (each is a function and a CLI subcommand):
 
 Shared low-level ISO logic lives in `core/iso9660.py`. ISO layout constants (`SECTOR_SIZE=2048`, `PVD_SECTOR=16`, etc.) are in `utils/constants.py` — don't hardcode elsewhere. `utils/logger.py` provides colored terminal output; `utils/text_detect.py` holds ASCII heuristics.
 
-### FFT WoTL tooling (tools/)
+### FFT WoTL tooling (psp_translate/)
 
-The generic scanner CANNOT find dialog in FFT WoTL because text is custom-encoded (not plain ASCII). A separate stack lives in `tools/`:
+The generic scanner CANNOT find dialog in FFT WoTL because text is custom-encoded (not plain ASCII). A separate stack lives in `psp_translate/`:
 
-- `tools/explore.py` — byte-level heuristic analyzer (printable %, top-N bytes, ASCII runs, format hints). Used to characterize unknown binary files.
-- `tools/font_render.py` — renders `FONT.BIN` as PGM grid. Format known: **10×14 px, 2bpp, MSB first, 35 bytes/glyph, 2223 glyphs**.
-- `tools/char_table.py` — CLI to build & maintain `char_table.json`.
-- `tools/char_table.json` — mapping `byte → Unicode char` for FFT WoTL custom encoding. Currently 62 single-byte (digit + A-Z + a-z) + punctuation + multi-byte sequences.
-- `tools/decode_evt.py` — decodes `TEST.EVT` and similar files using `char_table.json`. Handles single-byte, multi-byte sequences, control codes, padding skip, search mode.
+- `psp_translate/revtools/explore.py` — byte-level heuristic analyzer (printable %, top-N bytes, ASCII runs, format hints). Used to characterize unknown binary files.
+- `psp_translate/revtools/font_render.py` — renders `FONT.BIN` as PGM grid. Format known: **10×14 px, 2bpp, MSB first, 35 bytes/glyph, 2223 glyphs**.
+- `psp_translate/codec/char_table.py` — CLI to build & maintain `char_table.json`.
+- `data/char_table.json` — mapping `byte → Unicode char` for FFT WoTL custom encoding. Currently 62 single-byte (digit + A-Z + a-z) + punctuation + multi-byte sequences.
+- `psp_translate/codec/decode.py` — decodes `TEST.EVT` and similar files using `char_table.json`. Handles single-byte, multi-byte sequences, control codes, padding skip, search mode.
 
 Data flow for FFT WoTL:
 
@@ -128,11 +128,12 @@ ISO → psp_modtool.extract → extracted/FFTPACK_Extracted/EVENT/
                             ▼               ▼             ▼
                        FONT.BIN        TEST.EVT       *.LZW
                             │               │             │
-                  font_render.py    decode_evt.py    (TODO: lzw_codec)
+              psp-translate     psp-translate     (TODO: lzw_codec)
+              font-render       decode
                             │               │
-                            └──► char_table.json ◄┘
+                            └──► data/char_table.json ◄┘
                                        │
-                                  TEST_EVT_dialog_only.txt
+                                  build/TEST_EVT_dialog_only.txt
                                   (8203 readable dialog blocks)
 ```
 
@@ -161,9 +162,9 @@ Multi-byte:
 
 - Shift-JIS / non-ASCII encodings (Japanese games) are not handled by the generic pipeline.
 - Custom `.pak`/`.arc` formats vary per game; the generic scanner only finds raw ASCII runs.
-- FFT WoTL uses a **custom 2bpp anti-aliased font + custom byte encoding + multi-byte sequences** — the generic `psp-modtool scan` does not work; use the `tools/` stack instead.
+- FFT WoTL uses a **custom 2bpp anti-aliased font + custom byte encoding + multi-byte sequences** — the generic `psp-modtool scan` does not work; use the `psp_translate/` stack instead.
 - **Hard constraint** for any future encoder: text length must not exceed the original (or pointer table must be rewritten). See `docs/TASK/TODO_PLAN.md` Fase 5 for the encoder strategy.
-- **Repack bubble invariant (CRITICAL — `tools/repack_evt.py`)**: a dialog bubble
+- **Repack bubble invariant (CRITICAL — `psp_translate/evt/repack.py`)**: a dialog bubble
   is delimited by a single `0xFE` terminator at `byte_end-1`. When substituting a
   shorter ID translation you MUST preserve the original bubble byte-length and keep
   **exactly one** `0xFE`, at its original position. Implementation: write the encoded
@@ -179,7 +180,7 @@ Multi-byte:
 - **Translation must preserve control codes**: every `<...>` token (`<SPEAKER>`,
   `<f8>`, `<e3>`, `<e0>`, `<PRAYER>`, `<e2>6`, raw `<XX>`) present in `en` must appear
   with the same count in `id_final`, and a speaker bubble's `id_final` must start with
-  `<SPEAKER>`. `translate_pipeline.py :: validate_translation` enforces this and ABORTS
+  `<SPEAKER>`. `psp_translate/translate/pipeline.py :: validate_translation` enforces this and ABORTS
   the pipeline on violation (override: `--ignore-control-errors`). Dropping a
   `<SPEAKER>` tag makes the speaker name disappear in-game.
 - Always test repacked ISOs in PPSSPP.
@@ -188,6 +189,6 @@ Multi-byte:
 
 - `docs/TASK/TODO_PLAN.md` — phased roadmap for completing the FFT WoTL translation pipeline (~5-8 weeks engineering + translation work).
 - `docs/DocumentOfComunity.md` — community research (ffhacktics) + internal reverse engineering findings (font format, character table verification, control codes).
-- `tools/TEST_EVT_decoded.txt` — full decoded TEST.EVT (5.9 MB raw).
-- `tools/TEST_EVT_dialog_only.txt` — 8203 dialog-only blocks (844 KB readable English).
-- `tools/font_renders/glyph_dump.txt` — ASCII art of each glyph (visual reference for extending `char_table.json`).
+- `build/TEST_EVT_decoded.txt` — full decoded TEST.EVT (5.9 MB raw).
+- `build/TEST_EVT_dialog_only.txt` — 8203 dialog-only blocks (844 KB readable English).
+- `build/font_renders/glyph_dump.txt` — ASCII art of each glyph (visual reference for extending `char_table.json`).

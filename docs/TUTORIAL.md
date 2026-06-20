@@ -67,7 +67,7 @@ ls -la extracted/FFTPACK_Extracted/EVENT/TEST.EVT
 ```
 
 > Langkah reverse-engineering (font, char_table, decode, parse →
-> `tools/events_parsed.json`) **sudah selesai** dan ada di repo. Tidak perlu
+> `build/events_parsed.json`) **sudah selesai** dan ada di repo. Tidak perlu
 > diulang kecuali mau menambah karakter ke `char_table.json`.
 
 ---
@@ -75,7 +75,7 @@ ls -la extracted/FFTPACK_Extracted/EVENT/TEST.EVT
 ## 2. Bangun workspace
 
 ```bash
-python tools/build_workspace.py tools/events_parsed.json workspace/ --filter-quality
+python -m psp_translate workspace build/events_parsed.json workspace/ --filter-quality
 ```
 
 **Hasil:** `workspace/chapter_01.json` … `chapter_91.json` + `index.json`
@@ -96,17 +96,17 @@ Catatan: chunk pertama mulai di id ≈ 76, dialog "asli" mulai sekitar id 83.
 
 Lihat dulu prompt tanpa pakai kuota (disarankan pertama kali):
 ```bash
-python tools/translate_gemini.py workspace/chapter_01.json /tmp/preview.json --dry-run
+python -m psp_translate gemini workspace/chapter_01.json /tmp/preview.json --dry-run
 ```
 
 Translate slice kecil dulu untuk uji (mis. 20 blok pertama yang readable):
 ```bash
-python tools/translate_gemini.py workspace/chapter_01.json workspace/chapter_01.out.json --start 83 --end 103 --batch 10
+python -m psp_translate gemini workspace/chapter_01.json workspace/chapter_01.out.json --start 83 --end 103 --batch 10
 ```
 
 Lalu seluruh chunk:
 ```bash
-python tools/translate_gemini.py workspace/chapter_01.json workspace/chapter_01.out.json
+python -m psp_translate gemini workspace/chapter_01.json workspace/chapter_01.out.json
 ```
 
 **Output** `chapter_01.out.json`: tiap blok dapat `id_auto`, `flags`, `status`
@@ -154,7 +154,7 @@ Aturan wajib:
 ## 5. Rakit jadi ISO modifikasi
 
 ```bash
-python tools/translate_pipeline.py \
+python -m psp_translate pipeline \
     --translations workspace/chapter_01.out.json \
     --original-iso "games/Final Fantasy Tactics - The War of the Lions (USA).iso" \
     --output-iso /tmp/FFT_ID.iso
@@ -184,9 +184,9 @@ Artinya ID lebih panjang dari slot byte original dan tak ada buffer. Perpendek
 `id_final`-nya pakai singkatan/phrasing ringkas, lalu jalankan ulang. Cek
 overflow tiap blok:
 ```bash
-python tools/repack_evt.py \
+python -m psp_translate evt-repack \
   extracted/FFTPACK_Extracted/EVENT/TEST.EVT \
-  tools/events_parsed.json workspace/chapter_01.out.json tools/char_table.json \
+  build/events_parsed.json workspace/chapter_01.out.json data/char_table.json \
   --output /tmp/_t.evt --report /tmp/_r.json --allow-stretch
 python -c "import json;[print(d['id'],d['status'],'overflow',d.get('overflow')) for d in json.load(open('/tmp/_r.json'))['details'] if d['status']!='applied' and d['status']!='stretched']"
 ```
@@ -204,10 +204,10 @@ Boot `/tmp/FFT_ID.iso`. Periksa:
 ```bash
 python - <<'PY'
 import json,sys; from pathlib import Path
-sys.path.insert(0,'tools'); from decode_evt import decode, load_table
-m,mb=load_table(Path('tools/char_table.json'))
+sys.path.insert(0,'.'); from psp_translate.codec.decode import decode, load_table
+m,mb=load_table(Path('data/char_table.json'))
 iso=open('/tmp/FFT_ID.iso','rb'); base=0x02c20000+0x00361800
-ev=json.load(open('tools/events_parsed.json'))['events']
+ev=json.load(open('build/events_parsed.json'))['events']
 idx={};bid=0
 for e in ev:
     for b in e.get('bubbles',[]):
@@ -219,7 +219,7 @@ PY
 
 Uji jalur stretch (otomatis, tanpa PPSSPP):
 ```bash
-python tools/test_stretch_path.py
+python -m psp_translate verify
 ```
 
 ---
@@ -227,7 +227,7 @@ python tools/test_stretch_path.py
 ## 7. Distribusi (xdelta3 patch)
 
 ```bash
-python tools/translate_pipeline.py \
+python -m psp_translate pipeline \
     --translations workspace/ \
     --original-iso "games/Final Fantasy Tactics - The War of the Lions (USA).iso" \
     --output-iso /tmp/FFT_ID_full.iso \

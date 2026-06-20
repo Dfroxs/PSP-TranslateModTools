@@ -45,8 +45,8 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 - ✅ Identifikasi punctuation utama: `! ? . ' space`
 - ✅ Identifikasi multi-byte: `0xda 0x74 = ,`, `0xd1 0x1D = -`
 - ✅ Identifikasi control codes dasar: `0xfe` = EOS, `0xf8` = soft break, `0xe3 0x08` = speaker tag, `0xe0` = player name
-- ✅ Decoder lengkap (`tools/decode_evt.py`)
-- ✅ Ekstrak 8,203 blok dialog readable (`tools/TEST_EVT_dialog_only.txt`)
+- ✅ Decoder lengkap (`psp_translate/codec/decode.py`)
+- ✅ Ekstrak 8,203 blok dialog readable (`build/TEST_EVT_dialog_only.txt`)
 
 ---
 
@@ -62,7 +62,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 - [x] **`—` (em dash) = `0xda 0x68`** — verified di "class divides—a world where..."
 - [ ] `/` `*` `&` — tidak ketemu yang clear di dialog area (kemungkinan ada di HELP.LZW)
 
-**Cara**: Pakai `tools/decode_evt.py --search "<known word>"` untuk konteks. Lihat byte di sekitar punctuation yang expected dari original FFT script (referensi: [Final Fantasy Wiki script](https://finalfantasy.fandom.com/wiki/Final_Fantasy_Tactics:_The_War_of_the_Lions_script)).
+**Cara**: Pakai `psp_translate/codec/decode.py --search "<known word>"` untuk konteks. Lihat byte di sekitar punctuation yang expected dari original FFT script (referensi: [Final Fantasy Wiki script](https://finalfantasy.fandom.com/wiki/Final_Fantasy_Tactics:_The_War_of_the_Lions_script)).
 
 ### 2.2 Identifikasi accented characters (untuk nama)
 - [x] **`ú` (u akut) = `0xda 0x65`** — verified di "Cúchulainn, the Impure" (Demon karakter)
@@ -76,7 +76,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 - [ ] Byte `0xf0+` lain yang muncul di dialog
 - [ ] Multi-byte `0xd2 0x..`, `0xd3 0x..` di luar bytecode region
 
-**Output Fase 2**: `tools/char_table.json` lengkap dengan ≥80 mapping single-byte + 10+ multi-byte.
+**Output Fase 2**: `data/char_table.json` lengkap dengan ≥80 mapping single-byte + 10+ multi-byte.
 
 ---
 
@@ -85,7 +85,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 **Tujuan**: Memahami layout file TEST.EVT untuk bisa modifikasi tanpa merusak format. **CRITICAL**: pointer table harus benar atau game crash.
 
 ### 3.1 Reverse engineer header
-- [ ] Tulis `tools/evt_header.py` — parse first 0x5800 byte sebagai struktur
+- [ ] Tulis `psp_translate/evt/header.py` — parse first 0x5800 byte sebagai struktur
 - [ ] Identifikasi:
   - [ ] Magic number / version (4 byte pertama: `f2 f2 f2 f2`)
   - [ ] Jumlah event entries
@@ -99,7 +99,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
   - [ ] Bytecode script (camera, character movement, music)
   - [ ] Text data (dialog) dengan multi-bubble support
   - [ ] End-of-event marker
-- [ ] Tulis `tools/evt_parser.py` — pisahkan bytecode dari text
+- [ ] Tulis `psp_translate/evt/parser.py` — pisahkan bytecode dari text
 
 ### 3.3 Semantik control codes
 - [ ] `<e3>08` speaker tag — argumen apa? (icon? portrait?)
@@ -110,7 +110,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 - [ ] End-of-bubble vs end-of-event
 
 **Output Fase 3**:
-- `tools/evt_parser.py` — parser yang ekstrak (event_id, dialog_text, control_codes)
+- `psp_translate/evt/parser.py` — parser yang ekstrak (event_id, dialog_text, control_codes)
 - Format JSON intermediate untuk tiap event:
   ```json
   {
@@ -142,7 +142,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 **Format**: 128-byte header (32 LE32 pointers) + data section (0xFE-terminated strings).
 Detail di `../formats/LZW_FORMAT.md`.
 
-Tool: `tools/lzw_extract.py` — sudah jalan, output JSON per file.
+Tool: `psp_translate/lzw/extract.py` — sudah jalan, output JSON per file.
 
 ### 4.2 ❌ Compressed .LZW (TODO — perlu reverse engineer 0xF0 marker)
 
@@ -161,7 +161,7 @@ Tool: `tools/lzw_extract.py` — sudah jalan, output JSON per file.
 ### 4.3 ✅ Bonus: proper nouns extracted
 
 Karena WORLD.LZW berisi semua nama (job/weapon/spell/character/place), kita extract
-**2,650 unique proper nouns dalam 17 kategori** ke `tools/proper_nouns.json`:
+**2,650 unique proper nouns dalam 17 kategori** ke `data/proper_nouns.json`:
 
 - characters (847): Abel, Abelard, Abraham, ...
 - spells (483): Cure, Fire, Absorb MP, Abyssal Blade, ...
@@ -182,22 +182,22 @@ Karena TEST.EVT tidak punya global pointer table (per Phase 3 — 231 event chun
 independen, 0x800-aligned), encoder hanya perlu substitusi in-place ATAU dalam
 trailing zero buffer per bubble.
 
-### 5.1 ✅ Encoder dasar (`tools/encode_evt.py`)
+### 5.1 ✅ Encoder dasar (`psp_translate/codec/encode.py`)
 
 - [x] Encoder text → bytes lossless
 - [x] Handle single-byte + multi-byte sequences + named tags (`<SPEAKER>`, dll)
 - [x] Roundtrip TEST.EVT FULL FILE: **byte-identical** (7,618,560 bytes)
 
-### 5.2 ✅ Repack tool (`tools/repack_evt.py`)
+### 5.2 ✅ Repack tool (`psp_translate/evt/repack.py`)
 
 - [x] Substitusi bubble in-place (kalau ID ≤ EN length, pad dengan 0x00)
 - [x] Stretch mode (`--allow-stretch`): extend ke trailing zero buffer kalau ada
 - [x] Truncate mode (`--allow-truncate`): hard limit kalau ID terlalu panjang
 - [x] Verifikasi: ALL 15,326 bubbles substitute dengan original text → **output byte-identical**
 
-### 5.3 ✅ Translation budget (`tools/translation_budget.py`)
+### 5.3 ✅ Translation budget (`psp_translate/evt/budget.py`)
 
-Output: `tools/translation_budget.json` — per-bubble byte budget untuk translator:
+Output: `build/translation_budget.json` — per-bubble byte budget untuk translator:
 - `original_bytes`: panjang EN encoded
 - `safe_bytes`: max kalau substitusi in-place (= original)
 - `stretch_bytes`: max kalau extend ke adjacent zeros (rare, 2.3% bubbles)
@@ -223,10 +223,10 @@ phrase ID dengan compact target ≤ EN length.
 
 | Path | Fungsi |
 |------|--------|
-| `tools/encode_evt.py` | text → bytes (lossless) |
-| `tools/repack_evt.py` | Apply translations to TEST.EVT, output modified .EVT |
-| `tools/translation_budget.py` | Per-bubble byte budget calculator |
-| `tools/translation_budget.json` | Output budget (15,326 bubbles) |
+| `psp_translate/codec/encode.py` | text → bytes (lossless) |
+| `psp_translate/evt/repack.py` | Apply translations to TEST.EVT, output modified .EVT |
+| `psp_translate/evt/budget.py` | Per-bubble byte budget calculator |
+| `build/translation_budget.json` | Output budget (15,326 bubbles) |
 
 ---
 
@@ -236,7 +236,7 @@ phrase ID dengan compact target ≤ EN length.
 
 ### 6.1 ✅ Map files dalam fftpack.bin
 
-Tool: `tools/repack_fftpack.py` + mapping di `tools/fftpack_event_map.json`.
+Tool: `psp_translate/pack/fftpack.py` + mapping di `data/fftpack_event_map.json`.
 
 File yang ter-mapping (offset di fftpack.bin):
 - `TEST.EVT` @ 0x00361800 (3,545,088)
@@ -247,12 +247,12 @@ File yang ter-mapping (offset di fftpack.bin):
 - `SPELL.MES` @ 0x00da3000 (14,299,136)
 - 4 file partial (HELP/JOIN/SAMPLE/FONT) — perlu fingerprint lebih dalam
 
-### 6.2 ✅ Patch fftpack.bin (`tools/repack_fftpack.py`)
+### 6.2 ✅ Patch fftpack.bin (`psp_translate/pack/fftpack.py`)
 
 CLI: substitute file dengan known offset, output modified fftpack.bin.
 Verified: TEST.EVT modified → fftpack.bin 220 MB modified, decode masih readable.
 
-### 6.3 ✅ Patch ISO langsung (`tools/patch_iso.py`)
+### 6.3 ✅ Patch ISO langsung (`psp_translate/pack/iso.py`)
 
 Pendekatan paling efisien: karena ukuran preserved, langsung byte-patch
 ISO di posisi yang sudah dipetakan (`fftpack.bin` @ 0x02c20000 di ISO).
@@ -282,9 +282,9 @@ Hasil test: prayer area "Father" → "Bapa" terdecode dengan benar dari modified
 
 | Path | Fungsi |
 |------|--------|
-| `tools/repack_fftpack.py` | Patch file di fftpack.bin |
-| `tools/patch_iso.py` | Patch fftpack.bin langsung di ISO |
-| `tools/fftpack_event_map.json` | Offset mapping per file di fftpack.bin |
+| `psp_translate/pack/fftpack.py` | Patch file di fftpack.bin |
+| `psp_translate/pack/iso.py` | Patch fftpack.bin langsung di ISO |
+| `data/fftpack_event_map.json` | Offset mapping per file di fftpack.bin |
 
 ---
 
@@ -348,7 +348,7 @@ bubble harus diawali `<SPEAKER>`. Pelanggaran = FATAL (pipeline abort; override
 Tidak perlu nunggu tools 100% selesai — bisa start translasi paralel dengan engineering.
 
 ### 8.1 Setup workflow translasi
-- [ ] Tulis `tools/translation_workspace.py`
+- [ ] Tulis `psp_translate/translation_workspace.py`
   - Input: dialog blocks JSON
   - Output: file editable per chapter (atau per event)
   - Format: parallel EN | ID columns
@@ -386,7 +386,7 @@ Berdasarkan importance untuk player:
 
 User memilih pakai Gemini API untuk auto-translation EN→ID. Workflow:
 
-- [ ] Tulis `tools/translate_gemini.py`
+- [ ] Tulis `psp_translate/translate/gemini.py`
   - Input: dialog JSON (per chapter / per event)
   - Output: translation JSON dengan kolom `en`, `id_auto`, `id_final` (manual review)
   - Pakai `google-generativeai` SDK
@@ -401,7 +401,7 @@ User memilih pakai Gemini API untuk auto-translation EN→ID. Workflow:
 - [ ] Fallback: kalau Gemini balikin invalid output (drop control code), retry / flag
 
 ### 8.5 Translation validation
-- [ ] Tulis `tools/validate_translation.py`
+- [ ] Tulis `psp_translate/validate_translation.py`
   - Verifikasi semua proper nouns masih ada (tidak ke-translate)
   - Verifikasi semua control codes preserved
   - Verifikasi byte length per bubble (warning kalau ID > EN 30%)
@@ -436,9 +436,9 @@ Ini track terpisah, lebih sulit dari text translation.
 - Patch executable PSP — terlalu sulit tanpa source code
 
 ### 9.3 Implementation
-- [ ] Tulis `tools/fmv_extract.py` — pisahkan video stream dari .pmf
-- [ ] Tulis `tools/fmv_subtitle.py` — overlay subtitle dengan ffmpeg
-- [ ] Tulis `tools/fmv_repack.py` — convert balik ke .pmf
+- [ ] Tulis `psp_translate/fmv_extract.py` — pisahkan video stream dari .pmf
+- [ ] Tulis `psp_translate/fmv_subtitle.py` — overlay subtitle dengan ffmpeg
+- [ ] Tulis `psp_translate/fmv_repack.py` — convert balik ke .pmf
 - [ ] Buat .srt file dari translated dialog (timing sync manual)
 
 **Catatan**: Track ini bisa **DITUNDA** sampai Fase 1-7 selesai. FMV subtitle adalah polish layer, bukan blocker untuk playable translation.
@@ -462,24 +462,24 @@ Ini track terpisah, lebih sulit dari text translation.
 
 | Tool | Status | Fase | Fungsi |
 |------|--------|------|--------|
-| `tools/explore.py` | ✅ Done | 0 | Heuristic byte analyzer |
-| `tools/font_render.py` | ✅ Done | 1 | FONT.BIN → PGM |
-| `tools/char_table.py` | ✅ Done | 1-2 | Manage char_table.json |
-| `tools/decode_evt.py` | ✅ Done | 1 | TEST.EVT → readable text |
-| `tools/evt_header.py` | TODO | 3 | Parse TEST.EVT header |
-| `tools/evt_parser.py` | TODO | 3 | Split bytecode + text |
-| `tools/lzw_codec.py` | TODO | 4 | LZW de/compress |
-| `tools/encode_evt.py` | TODO | 5 | text → bytes |
-| `tools/pointer_rewriter.py` | TODO | 5 | Update pointer tables |
-| `tools/repack_event.py` | TODO | 6 | EVENT/ → binary |
-| `tools/repack_fftpack.py` | TODO | 6 | EVENT+others → FFTPACK.BIN |
-| `tools/translation_workspace.py` | TODO | 8 | Manage translation JSONs |
-| `tools/translate_gemini.py` | TODO | 8 | Auto-translate EN→ID pakai Gemini API |
-| `tools/validate_translation.py` | TODO | 8 | Validate proper nouns + control codes preserved |
-| `tools/xdelta_build.py` | TODO | 6 | Generate xdelta3 patch (original ISO → mod ISO) |
-| `tools/fmv_extract.py` | TODO | 9 | Extract video dari .pmf PSP |
-| `tools/fmv_subtitle.py` | TODO | 9 | Overlay subtitle ID via ffmpeg |
-| `tools/fmv_repack.py` | TODO | 9 | Repack mp4 → .pmf PSP-kompatibel |
+| `psp_translate/revtools/explore.py` | ✅ Done | 0 | Heuristic byte analyzer |
+| `psp_translate/revtools/font_render.py` | ✅ Done | 1 | FONT.BIN → PGM |
+| `psp_translate/codec/char_table.py` | ✅ Done | 1-2 | Manage char_table.json |
+| `psp_translate/codec/decode.py` | ✅ Done | 1 | TEST.EVT → readable text |
+| `psp_translate/evt/header.py` | TODO | 3 | Parse TEST.EVT header |
+| `psp_translate/evt/parser.py` | TODO | 3 | Split bytecode + text |
+| `psp_translate/lzw_codec.py` | TODO | 4 | LZW de/compress |
+| `psp_translate/codec/encode.py` | TODO | 5 | text → bytes |
+| `psp_translate/pointer_rewriter.py` | TODO | 5 | Update pointer tables |
+| `psp_translate/repack_event.py` | TODO | 6 | EVENT/ → binary |
+| `psp_translate/pack/fftpack.py` | TODO | 6 | EVENT+others → FFTPACK.BIN |
+| `psp_translate/translation_workspace.py` | TODO | 8 | Manage translation JSONs |
+| `psp_translate/translate/gemini.py` | TODO | 8 | Auto-translate EN→ID pakai Gemini API |
+| `psp_translate/validate_translation.py` | TODO | 8 | Validate proper nouns + control codes preserved |
+| `psp_translate/xdelta_build.py` | TODO | 6 | Generate xdelta3 patch (original ISO → mod ISO) |
+| `psp_translate/fmv_extract.py` | TODO | 9 | Extract video dari .pmf PSP |
+| `psp_translate/fmv_subtitle.py` | TODO | 9 | Overlay subtitle ID via ffmpeg |
+| `psp_translate/fmv_repack.py` | TODO | 9 | Repack mp4 → .pmf PSP-kompatibel |
 
 ---
 
@@ -509,8 +509,8 @@ Ini track terpisah, lebih sulit dari text translation.
 
 Aturan ini di-encode di:
 - `STYLE_GUIDE.md` (untuk human translator/reviewer)
-- `tools/translate_gemini.py` prompt template (untuk AI)
-- `tools/validate_translation.py` (untuk automated check)
+- `psp_translate/translate/gemini.py` prompt template (untuk AI)
+- `psp_translate/validate_translation.py` (untuk automated check)
 
 ---
 
@@ -524,7 +524,7 @@ Aturan ini di-encode di:
 Parse struktur TEST.EVT (pointer table, control codes semantic). Ini blocker untuk encoder.
 
 ### Track B — Translation setup (Fase 8.1 + 8.4)
-- Setup `tools/translate_gemini.py` dengan prompt template strict
+- Setup `psp_translate/translate/gemini.py` dengan prompt template strict
 - Generate workspace JSON dari `TEST_EVT_dialog_only.txt`
 - Mulai auto-translate Chapter 1 dengan Gemini (langsung lihat hasilnya)
 - Definisikan list proper nouns di JSON (untuk validator)

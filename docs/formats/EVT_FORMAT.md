@@ -165,9 +165,9 @@ opcode di English dialog flow.
 
 ## 7. Tools
 
-- `tools/evt_header.py <evt> --output struct.json` — parse layout level
+- `psp_translate/evt/header.py <evt> --output struct.json` — parse layout level
   file (offset & size tiap event).
-- `tools/evt_parser.py <evt> <struct.json> --output parsed.json
+- `psp_translate/evt/parser.py <evt> <struct.json> --output parsed.json
   [--event-id N]` — extract bubbles per event.
-- `tools/decode_evt.py` — decoder reused sebagai library oleh parser.
-- `tools/char_table.json` — mapping byte → glyph (single + multi-byte).
+- `psp_translate/codec/decode.py` — decoder reused sebagai library oleh parser.
+- `data/char_table.json` — mapping byte → glyph (single + multi-byte).
