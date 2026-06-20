@@ -18,7 +18,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 | 0 | Setup & Discovery | ✅ Done | — | Format font, decoder dasar |
 | 1 | Decode Pipeline | ✅ Done | — | TEST.EVT readable as English |
 | 2 | Lengkapi Char Table | ✅ Done | — | 70 single-byte + 6 multi-byte mapped |
-| 3 | Parse Struktur TEST.EVT | ⏳ TODO | 1-2 minggu | Pointer table + control codes |
+| 3 | Parse Struktur TEST.EVT | ✅ Mostly Done | — | Header + parser shipped (`evt-header` / `evt-parse`); sisa: semantik beberapa control code (§3.3) |
 | 4 | LZW Decoder | ✅ Mostly Done | — | 3/7 .LZW files extractable, 2,650 proper nouns terdata |
 | 5 | Encoder & Pointer Rewriter | ✅ Done | — | Encoder + repack 100% lossless |
 | 6 | Repacker | ✅ Done | — | Byte-level patch TEST.EVT → fftpack → ISO |
@@ -62,7 +62,7 @@ Sisa: bulk translation (Fase 8) + tes khusus jalur stretch (ID > original).
 - [x] **`—` (em dash) = `0xda 0x68`** — verified di "class divides—a world where..."
 - [ ] `/` `*` `&` — tidak ketemu yang clear di dialog area (kemungkinan ada di HELP.LZW)
 
-**Cara**: Pakai `psp_translate/codec/decode.py --search "<known word>"` untuk konteks. Lihat byte di sekitar punctuation yang expected dari original FFT script (referensi: [Final Fantasy Wiki script](https://finalfantasy.fandom.com/wiki/Final_Fantasy_Tactics:_The_War_of_the_Lions_script)).
+**Cara**: Pakai `psp-translate decode --search "<known word>"` untuk konteks. Lihat byte di sekitar punctuation yang expected dari original FFT script (referensi: [Final Fantasy Wiki script](https://finalfantasy.fandom.com/wiki/Final_Fantasy_Tactics:_The_War_of_the_Lions_script)).
 
 ### 2.2 Identifikasi accented characters (untuk nama)
 - [x] **`ú` (u akut) = `0xda 0x65`** — verified di "Cúchulainn, the Impure" (Demon karakter)
@@ -169,7 +169,7 @@ Karena WORLD.LZW berisi semua nama (job/weapon/spell/character/place), kita extr
 - rumors (242): named events
 - quests (143), jobs (117), map_locations (110), quest_ships (93), sidequests (96), ...
 
-**Untuk Gemini translator** (`translate_gemini.py`): list ini di-feed sebagai
+**Untuk Gemini translator** (`psp_translate/translate/gemini.py`): list ini di-feed sebagai
 "DO NOT TRANSLATE" reference. Setiap nama harus muncul as-is di output ID.
 
 ---
@@ -267,14 +267,16 @@ Mode:
 ```
 Translation JSON
        ↓
-repack_evt.py → modified TEST.EVT (same size)
+psp-translate evt-repack → modified TEST.EVT (same size)
        ↓
-repack_fftpack.py → modified fftpack.bin (same size)
+psp-translate fftpack    → modified fftpack.bin (same size)
        ↓
-patch_iso.py → modified ISO (same size, 418 MB)
+psp-translate iso        → modified ISO (same size, 418 MB)
        ↓
 Test di PPSSPP
 ```
+
+Or in one shot: `psp-translate pipeline --translations ... --original-iso ... --output-iso ...`
 
 Hasil test: prayer area "Father" → "Bapa" terdecode dengan benar dari modified ISO.
 
@@ -311,7 +313,7 @@ itu glyph '0' = bug "OOOO"), terminator tunggal di posisi asli. Lihat
 
 Verifikasi: identity roundtrip byte-identical (19,925 bubble) + in-game PPSSPP.
 
-#### ✅ Validasi control-code (`translate_pipeline.py`)
+#### ✅ Validasi control-code (`psp_translate/translate/pipeline.py`)
 
 `validate_translation` sekarang cek tiap token `<...>` (`<SPEAKER>`, `<f8>`,
 `<e0>`, `<PRAYER>`, `<e2>6`, `<XX>`) jumlahnya sama di `id_final`, dan speaker
@@ -347,12 +349,12 @@ bubble harus diawali `<SPEAKER>`. Pelanggaran = FATAL (pipeline abort; override
 
 Tidak perlu nunggu tools 100% selesai — bisa start translasi paralel dengan engineering.
 
-### 8.1 Setup workflow translasi
-- [ ] Tulis `psp_translate/translation_workspace.py`
-  - Input: dialog blocks JSON
-  - Output: file editable per chapter (atau per event)
-  - Format: parallel EN | ID columns
-- [ ] Versioning: simpan di Git per file translation
+### 8.1 ✅ Setup workflow translasi
+- [x] `psp_translate/translate/workspace.py` (CLI: `psp-translate workspace`)
+  - Input: `build/events_parsed.json`
+  - Output: 45 chunks of 100 blocks each (`workspace/chapter_*.json`) + `index.json`
+  - Schema: `id`, `en`, `id_auto`, `id_final`, `flags`, `status` per block
+- [x] Versioning: workspace/ gitignored (user-specific); translations go into the chunk files
 
 ### 8.2 Priority order translasi
 Berdasarkan importance untuk player:
@@ -386,26 +388,28 @@ Berdasarkan importance untuk player:
 
 User memilih pakai Gemini API untuk auto-translation EN→ID. Workflow:
 
-- [ ] Tulis `psp_translate/translate/gemini.py`
-  - Input: dialog JSON (per chapter / per event)
-  - Output: translation JSON dengan kolom `en`, `id_auto`, `id_final` (manual review)
-  - Pakai `google-generativeai` SDK
-  - **Prompt template harus include semua aturan strict di atas** — Gemini diinstruksi:
-    - Jangan translate proper nouns (provide list of names)
+- [x] `psp_translate/translate/gemini.py` (CLI: `psp-translate gemini`)
+  - Input: workspace chunk JSON (or plain text dialog file)
+  - Output: same JSON with `id_auto`, `flags`, `status` filled per block
+  - Pakai `google-genai` SDK; system prompt template di `docs/gemini_prompt_template.md`
+  - **Prompt sudah grounded** dengan aturan strict di atas:
+    - Jangan translate proper nouns (proper noun list dari `data/proper_nouns.json`)
     - Preserve control codes `<f8>`, `<e0>`, `<SPEAKER>`, dll EXACTLY
-    - Preserve punctuation
-    - Adjust style sesuai speaker (provide character profile)
-- [ ] Token cost optimization: batch translate, skip yang sudah di-review
-- [ ] Setup API key handling (env var `GEMINI_API_KEY`)
-- [ ] Rate limiting: respect Gemini API quota
-- [ ] Fallback: kalau Gemini balikin invalid output (drop control code), retry / flag
+    - Adjust style sesuai speaker (character profile in prompt)
+    - Singkatan umum ID (`yg`, `dgn`, `utk`…) untuk muat byte budget
+- [x] Resumable: blocks yang sudah `auto`/`approved` di-skip pada run berikutnya
+- [x] API key handling: env var `GEMINI_API_KEY`
+- [x] Rate limiting: `--sleep` flag (default 4.5s ~ 13 RPM)
+- [x] Dry-run mode: `--dry-run` cetak prompt tanpa kuota API
 
-### 8.5 Translation validation
-- [ ] Tulis `psp_translate/validate_translation.py`
-  - Verifikasi semua proper nouns masih ada (tidak ke-translate)
-  - Verifikasi semua control codes preserved
-  - Verifikasi byte length per bubble (warning kalau ID > EN 30%)
-  - Spell check ID (optional)
+### 8.5 ✅ Translation validation (integrated)
+- [x] `validate_translation()` di `psp_translate/translate/pipeline.py`
+  - Verifikasi semua control codes (`<f8>`, `<e0>`, `<SPEAKER>`, raw `<XX>`) preserved per bubble
+  - Speaker bubble harus diawali `<SPEAKER>`
+  - Pelanggaran = FATAL (pipeline ABORTS; override `--ignore-control-errors`)
+- [x] Byte length per bubble: `psp-translate budget` + repacker stats (`applied_in_place`, `applied_stretched`, `skipped_too_long`)
+- [ ] Proper-noun check otomatis (verify nama tidak ke-translate) — masih manual review
+- [ ] Spell check ID (optional)
 
 ### 8.6 QA workflow
 - [ ] Tester (idealnya 2-3 orang) play through game dengan translasi
@@ -466,20 +470,21 @@ Ini track terpisah, lebih sulit dari text translation.
 | `psp_translate/revtools/font_render.py` | ✅ Done | 1 | FONT.BIN → PGM |
 | `psp_translate/codec/char_table.py` | ✅ Done | 1-2 | Manage char_table.json |
 | `psp_translate/codec/decode.py` | ✅ Done | 1 | TEST.EVT → readable text |
-| `psp_translate/evt/header.py` | TODO | 3 | Parse TEST.EVT header |
-| `psp_translate/evt/parser.py` | TODO | 3 | Split bytecode + text |
-| `psp_translate/lzw_codec.py` | TODO | 4 | LZW de/compress |
-| `psp_translate/codec/encode.py` | TODO | 5 | text → bytes |
-| `psp_translate/pointer_rewriter.py` | TODO | 5 | Update pointer tables |
-| `psp_translate/repack_event.py` | TODO | 6 | EVENT/ → binary |
-| `psp_translate/pack/fftpack.py` | TODO | 6 | EVENT+others → FFTPACK.BIN |
-| `psp_translate/translation_workspace.py` | TODO | 8 | Manage translation JSONs |
-| `psp_translate/translate/gemini.py` | TODO | 8 | Auto-translate EN→ID pakai Gemini API |
-| `psp_translate/validate_translation.py` | TODO | 8 | Validate proper nouns + control codes preserved |
+| `psp_translate/evt/header.py` | ✅ Done | 3 | Parse TEST.EVT header (CLI: `psp-translate evt-header`) |
+| `psp_translate/evt/parser.py` | ✅ Done | 3 | Split bytecode + text (CLI: `psp-translate evt-parse`) |
+| `psp_translate/lzw/codec.py` | TODO | 4 | LZW de/compress (folder ada; `extract.py` ✅ untuk plain-text LZW) |
+| `psp_translate/codec/encode.py` | ✅ Done | 5 | text → bytes (CLI: `psp-translate encode`) |
+| `psp_translate/evt/pointer.py` | TODO | 5 | Pointer rewriter for true expansion (DITUNDA — lihat §5.4) |
+| `psp_translate/evt/repack.py` | ✅ Done | 6 | Apply translations → modified TEST.EVT (CLI: `psp-translate evt-repack`) |
+| `psp_translate/pack/fftpack.py` | ✅ Done | 6 | Patch fftpack.bin (CLI: `psp-translate fftpack`) |
+| `psp_translate/translate/workspace.py` | ✅ Done | 8 | Build translation workspace chunks (CLI: `psp-translate workspace`) |
+| `psp_translate/translate/gemini.py` | ✅ Done | 8 | Auto-translate EN→ID via Gemini API (CLI: `psp-translate gemini`) |
+| `psp_translate/translate/pipeline.py` :: `validate_translation` | ✅ Done | 8 | Control-code + proper-noun validator (integrated in `pipeline`, ABORTS on violation) |
+| `psp_translate/pack/iso.py` | ✅ Done | 6 | Size-preserving ISO patch (CLI: `psp-translate iso`) |
 | `psp_translate/xdelta_build.py` | TODO | 6 | Generate xdelta3 patch (original ISO → mod ISO) |
-| `psp_translate/fmv_extract.py` | TODO | 9 | Extract video dari .pmf PSP |
-| `psp_translate/fmv_subtitle.py` | TODO | 9 | Overlay subtitle ID via ffmpeg |
-| `psp_translate/fmv_repack.py` | TODO | 9 | Repack mp4 → .pmf PSP-kompatibel |
+| `psp_translate/fmv/extract.py` | TODO | 9 | Extract video dari .pmf PSP |
+| `psp_translate/fmv/subtitle.py` | TODO | 9 | Overlay subtitle ID via ffmpeg |
+| `psp_translate/fmv/repack.py` | TODO | 9 | Repack mp4 → .pmf PSP-kompatibel |
 
 ---
 
@@ -508,35 +513,45 @@ Ini track terpisah, lebih sulit dari text translation.
 - Control codes (`<f8>`, `<e0>`, `<SPEAKER>`, dll)
 
 Aturan ini di-encode di:
-- `STYLE_GUIDE.md` (untuk human translator/reviewer)
-- `psp_translate/translate/gemini.py` prompt template (untuk AI)
-- `psp_translate/validate_translation.py` (untuk automated check)
+- `docs/gemini_prompt_template.md` (prompt yang dibaca oleh `psp_translate/translate/gemini.py`; berlaku juga sebagai style guide manusia)
+- `validate_translation()` di `psp_translate/translate/pipeline.py` (automated check — control codes & speaker tag)
 
 ---
 
-## Recommended Next Step (Updated 2026-06-19)
+## Recommended Next Step (Updated 2026-06-20, post-refactor)
 
-**Fase 2 selesai ✅** — char table lengkap (70 single-byte + 6 multi-byte).
+**Pipeline engineering ✅ DONE** (Fase 0-7): decode → encode → repack EVT → patch
+fftpack → patch ISO + control-code validator semuanya jalan, opening Orbonne
+verified in-game (PPSSPP), `--allow-stretch` path verified programmatically
+(`psp-translate verify` / `tests/test_stretch_path.py`).
 
-**Sekarang jalankan 2-3 track paralel**:
+**Codebase ✅ REFACTORED** (2026-06-20): tools/ flatpack → `psp_translate/`
+package + `data/` (source) + `build/` (generated) + `docs/` + `tests/`. Single
+CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
 
-### Track A — Engineering (lanjut Fase 3)
-Parse struktur TEST.EVT (pointer table, control codes semantic). Ini blocker untuk encoder.
+### Track utama yang tersisa
 
-### Track B — Translation setup (Fase 8.1 + 8.4)
-- Setup `psp_translate/translate/gemini.py` dengan prompt template strict
-- Generate workspace JSON dari `TEST_EVT_dialog_only.txt`
-- Mulai auto-translate Chapter 1 dengan Gemini (langsung lihat hasilnya)
-- Definisikan list proper nouns di JSON (untuk validator)
+**Track A — Bulk translation work (Fase 8)** — primary remaining work:
+- Iterate per chapter: `psp-translate gemini workspace/chapter_NN.json
+  workspace/chapter_NN.out.json`
+- Review blok ber-flag (`status='needs_review'`), isi `id_final`
+- Rakit incremental: `psp-translate pipeline --translations workspace/`
+  (auto-merge semua chapter)
+- Test di PPSSPP per beberapa chapter
 
-### Track C — Distribution prep (Fase 6.3 + new)
-- Riset xdelta3 workflow (apply/create patch)
-- Setup struktur release nanti
+**Track B — Distribution (Fase 6 leftover + new)**
+- `xdelta3` patch generator (TODO: `psp_translate/xdelta_build.py`)
+- README untuk distribusi patch ke end-user
 
-**Track A & B bisa benar-benar paralel** — engineering tidak nunggu translation, translation tidak nunggu engineering.
+**Track C — FMV subtitle (Fase 9, optional)**
+- Tunda sampai Track A produktif. PSMF format reverse engineering.
 
-**Track FMV (Fase 9)** ditunda dulu — kerjakan setelah text translation playable di PPSSPP.
+### Nice-to-have engineering
+- Pointer rewriter (§5.4 — `psp_translate/evt/pointer.py`) untuk true expansion
+  kalau Track A menemukan banyak bubble `skipped_too_long`.
+- LZW compressor (§4.2 — `psp_translate/lzw/codec.py`) kalau translasi
+  perlu sentuh HELP.LZW / WLDHELP.LZW.
 
 ---
 
-*Last updated: 2026-06-19*
+*Last updated: 2026-06-20 (post-refactor: tools/ → psp_translate/ package + data/ + build/ + docs/ + tests/)*
