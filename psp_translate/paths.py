@@ -20,6 +20,9 @@ WORKSPACE = ROOT / "workspace"
 CHAR_TABLE = DATA / "char_table.json"
 FFTPACK_MAP = DATA / "fftpack_event_map.json"
 PROPER_NOUNS = DATA / "proper_nouns.json"
+# Canonical FFT WoTL story dialogue (Final Fantasy Wiki) — used to GROUND the
+# Gemini translation: each decoded block is matched to its clean canonical line.
+WIKI_SCRIPT = DATA / "wiki_script" / "fft_story_dialogue.json"
 
 # Generated (gitignored, regenerable)
 EVENTS_PARSED = BUILD / "events_parsed.json"

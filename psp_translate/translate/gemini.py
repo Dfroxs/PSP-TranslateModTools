@@ -42,6 +42,7 @@ from pathlib import Path
 from typing import Any
 
 from psp_translate import paths
+from psp_translate.translate import wiki_ref
 
 PROMPT_TEMPLATE_PATH = paths.PROMPT_TEMPLATE
 
@@ -123,16 +124,30 @@ def load_input(path: Path) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def load_system_prompt() -> str:
-    """Extract SYSTEM INSTRUCTION block dari prompt template markdown."""
+    """Extract the SYSTEM INSTRUCTION block from the prompt template markdown.
+
+    Accepts both layouts: the body may be wrapped in a ``` code fence or left as
+    plain markdown. We grab everything between the "## SYSTEM INSTRUCTION" header
+    and the "## USER CONTENT" header, then strip an optional surrounding fence
+    and the trailing "---" separator.
+    """
     if not PROMPT_TEMPLATE_PATH.is_file():
         raise FileNotFoundError(f'Prompt template not found: {PROMPT_TEMPLATE_PATH}')
     md = PROMPT_TEMPLATE_PATH.read_text(encoding='utf-8')
-    # Cari blok di antara "## SYSTEM INSTRUCTION" sampai "## USER CONTENT"
-    m = re.search(r'## SYSTEM INSTRUCTION\s*\n+```\s*\n(.*?)\n```\s*\n+---\s*\n+## USER CONTENT',
+    m = re.search(r'##\s*SYSTEM INSTRUCTION\s*\n(.*?)\n##\s*USER CONTENT',
                   md, re.DOTALL)
     if not m:
         raise ValueError('Could not extract SYSTEM INSTRUCTION block from template.')
-    return m.group(1).strip()
+    body = m.group(1).strip()
+    # Drop a trailing horizontal-rule separator ("---") if present.
+    body = re.sub(r'\n+-{3,}\s*$', '', body).strip()
+    # Unwrap an optional ``` / ```lang ... ``` code fence around the whole body.
+    fence = re.match(r'^```[^\n]*\n(.*)\n```$', body, re.DOTALL)
+    if fence:
+        body = fence.group(1).strip()
+    if not body:
+        raise ValueError('SYSTEM INSTRUCTION block is empty in template.')
+    return body
 
 
 def estimate_byte_length(text: str) -> int:
@@ -272,8 +287,9 @@ def compact_to_budget(id_text: str, budget: int, en: str) -> tuple[str, bool]:
 
 
 def build_user_message(batch: list[dict[str, Any]]) -> str:
-    """Bikin user message: instruction + JSON array of {id, en, max_bytes, speaker}."""
+    """Bikin user message: instruction + JSON array of {id, en, max_bytes, speaker, wiki_ref}."""
     items = []
+    any_wiki = False
     for b in batch:
         # Prefer the real bubble byte budget; fall back to the estimate.
         en_bytes = b.get('byte_length') or estimate_byte_length(b['en'])
@@ -284,12 +300,27 @@ def build_user_message(batch: list[dict[str, Any]]) -> str:
         }
         if b.get('speaker'):
             item['speaker'] = b['speaker']
+        # Canonical clean English from the FFT wiki script (grounding). The
+        # decoded `en` carries control codes + decode noise; `wiki_ref` is the
+        # authoritative, noise-free meaning to translate FROM.
+        if b.get('wiki_ref'):
+            item['wiki_ref'] = b['wiki_ref']
+            any_wiki = True
         items.append(item)
     js = json.dumps(items, ensure_ascii=False, indent=2)
+    wiki_note = (
+        'GROUNDING: Some blocks include a `wiki_ref` field — the official, clean '
+        'English of that line from the game script. When present, translate the '
+        'MEANING of `wiki_ref` (it is authoritative and free of decode noise), '
+        'but keep every control code exactly as it appears in `en`, and still '
+        'fit `max_bytes`. Never add anything not in `wiki_ref`/`en`.\n\n'
+        if any_wiki else ''
+    )
     return (
         'Translate the following dialog blocks EN→ID. Respond with a JSON array '
         'in the same order, same length. Preserve all control codes and proper '
         'nouns per the rules.\n\n'
+        f'{wiki_note}'
         'CRITICAL: Each block has a `max_bytes` field. Your `id_text` must NOT '
         'exceed `max_bytes` (estimate: 1 char ≈ 1 byte). First write the FULL, '
         'natural Indonesian (complete subject/pronoun, full words). ONLY if it '
@@ -335,6 +366,64 @@ def validate_translation(en: str, id_text: str) -> list[str]:
         flags.append('empty_translation')
 
     return flags
+
+
+def finalize_translation(b: dict[str, Any], raw_id_text: str) -> tuple[str, list[str]]:
+    """Apply abbreviation cleanup + byte-budget compaction + validation.
+
+    Returns (possibly-compacted id_text, flags). Shared by the first pass and
+    the control-code retry pass so both go through identical post-processing.
+    """
+    id_text = expand_abbreviations(raw_id_text, b['en'])
+    flags = validate_translation(b['en'], id_text)
+    budget = b.get('byte_length')
+    if budget and encoded_byte_length(id_text) > budget:
+        id_text, fits = compact_to_budget(id_text, budget, b['en'])
+        if not fits:
+            flags = flags + [
+                f'overflow_byte_budget:{encoded_byte_length(id_text) - budget}'
+            ]
+    return id_text, flags
+
+
+def has_control_error(flags: list[str]) -> bool:
+    """True if flags include a control-code mismatch (missing/extra)."""
+    return any(f.startswith('missing_control_codes')
+               or f.startswith('extra_control_codes') for f in flags)
+
+
+def build_retry_message(batch: list[dict[str, Any]]) -> str:
+    """Focused re-translation prompt for blocks whose control codes were dropped.
+
+    Each item lists the EXACT control-code multiset that MUST appear (same count)
+    plus the previous wrong attempt, so the model only fixes the code mismatch.
+    """
+    items = []
+    for b in batch:
+        required = dict(extract_control_codes(b['en']))
+        item = {
+            'id': b['id'],
+            'en': b['en'],
+            'max_bytes': b.get('byte_length') or estimate_byte_length(b['en']),
+            'required_control_codes': required,
+            'previous_attempt': b.get('_retry_prev', ''),
+        }
+        if b.get('speaker'):
+            item['speaker'] = b['speaker']
+        if b.get('wiki_ref'):
+            item['wiki_ref'] = b['wiki_ref']
+        items.append(item)
+    js = json.dumps(items, ensure_ascii=False, indent=2)
+    return (
+        'Your previous translation DROPPED or ALTERED control codes. Re-translate '
+        'these blocks. CRITICAL: `id_text` MUST contain EVERY token in '
+        '`required_control_codes` the EXACT number of times shown (e.g. <f8> x2 '
+        'means two <f8> in the output), in natural positions, and a <SPEAKER>... '
+        'bubble must START with that speaker tag. Keep the meaning of `wiki_ref`/'
+        '`en`, fit `max_bytes`, preserve proper nouns. Output ONLY a JSON array '
+        '[{"id":N,"id_text":"..."}], same order, same length.\n\n'
+        f'{js}'
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -410,6 +499,7 @@ def merge_blocks(existing: list[dict] | None,
                 'id_auto': None,
                 'id_final': None,
                 'speaker': b.get('speaker'),
+                'byte_length': b.get('byte_length'),
                 'status': 'pending',
                 'flags': [],
             })
@@ -527,6 +617,23 @@ def main() -> int:
     if skipped:
         print(f'Resuming: {skipped} already done/skipped, {len(to_translate)} remaining.')
 
+    # Ground each block against the canonical wiki script: attach `wiki_ref`
+    # (clean English) so the model translates noise-free meaning. Loaded once;
+    # degrades gracefully (ungrounded) if the script JSON is absent.
+    wiki = wiki_ref.load_wiki()
+    if wiki:
+        grounded = 0
+        for b in to_translate:
+            w, score = wiki_ref.match_block(b['en'], wiki)
+            if w is not None:
+                b['wiki_ref'] = w['en']
+                grounded += 1
+        print(f'Wiki grounding: {grounded}/{len(to_translate)} blocks matched a '
+              f'canonical line ({paths.WIKI_SCRIPT.name}).')
+    else:
+        print(f'WARNING: wiki script not found ({paths.WIKI_SCRIPT}); '
+              'translating WITHOUT grounding.', file=sys.stderr)
+
     if not to_translate and not args.dry_run:
         print('Nothing to translate. Exiting.')
         return 0
@@ -602,34 +709,62 @@ def main() -> int:
         by_id_response = {item['id']: item.get('id_text', '') for item in parsed
                           if isinstance(item, dict) and 'id' in item}
 
+        # First pass: post-process each block (status assigned after retry).
         for b in batch:
             bid = b['id']
-            idx = by_id_idx[bid]
-            entry = merged[idx]
+            entry = merged[by_id_idx[bid]]
             if bid not in by_id_response:
-                entry['status'] = 'error'
                 entry['flags'] = ['missing_from_response']
-                flagged_count += 1
                 continue
-            id_text = by_id_response[bid]
-            id_text = expand_abbreviations(id_text, b['en'])
-            # Real-encoder budget guard: the model often overshoots max_bytes.
-            # If the translation exceeds the bubble's real byte budget, compact
-            # it deterministically; if it STILL overflows, flag it (so it lands
-            # in needs_review and is never silently dropped at repack time).
-            budget = b.get('byte_length')
-            flags = validate_translation(b['en'], id_text)
-            if budget:
-                if encoded_byte_length(id_text) > budget:
-                    id_text, fits = compact_to_budget(id_text, budget, b['en'])
-                    if not fits:
-                        flags = flags + [
-                            f'overflow_byte_budget:'
-                            f'{encoded_byte_length(id_text) - budget}'
-                        ]
+            id_text, flags = finalize_translation(b, by_id_response[bid])
             entry['id_auto'] = id_text
             entry['flags'] = flags
-            if flags:
+
+        # Control-code retry: any block whose codes were dropped/altered gets ONE
+        # focused re-translation. Directly prevents missing control codes (the
+        # assembly pipeline also ABORTs on any that still slip through).
+        retry_blocks = [
+            b for b in batch
+            if merged[by_id_idx[b['id']]]['flags'] != ['missing_from_response']
+            and has_control_error(merged[by_id_idx[b['id']]]['flags'])
+        ]
+        if retry_blocks:
+            for b in retry_blocks:
+                b['_retry_prev'] = merged[by_id_idx[b['id']]].get('id_auto') or ''
+            print(f'  control-code retry: {len(retry_blocks)} block(s) '
+                  f'(ids {", ".join(str(b["id"]) for b in retry_blocks)})')
+            time.sleep(args.sleep)  # respect RPM before the extra call
+            rmap: dict[int, str] = {}
+            try:
+                rraw = call_gemini(client, args.model, system_prompt,
+                                   build_retry_message(retry_blocks),
+                                   args.max_output_tokens)
+                rparsed = parse_gemini_response(rraw)
+                rmap = {it['id']: it.get('id_text', '') for it in rparsed
+                        if isinstance(it, dict) and 'id' in it}
+            except Exception as e:  # noqa: BLE001
+                print(f'  retry failed ({type(e).__name__}); keeping originals',
+                      file=sys.stderr)
+            fixed = 0
+            for b in retry_blocks:
+                if b['id'] not in rmap:
+                    continue
+                new_text, new_flags = finalize_translation(b, rmap[b['id']])
+                # Adopt only if the control-code mismatch is gone (strict win).
+                if not has_control_error(new_flags):
+                    entry = merged[by_id_idx[b['id']]]
+                    entry['id_auto'] = new_text
+                    entry['flags'] = new_flags
+                    fixed += 1
+            print(f'  control-code retry: {fixed}/{len(retry_blocks)} fixed')
+
+        # Finalize status + counts for the whole batch.
+        for b in batch:
+            entry = merged[by_id_idx[b['id']]]
+            if entry['flags'] == ['missing_from_response']:
+                entry['status'] = 'error'
+                flagged_count += 1
+            elif entry['flags']:
                 entry['status'] = 'needs_review'
                 flagged_count += 1
             else:

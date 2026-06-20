@@ -539,6 +539,30 @@ CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
   (auto-merge semua chapter)
 - Test di PPSSPP per beberapa chapter
 
+#### ✅ Checkpoint 2026-06-21 — Fase 8 dimulai (wiki-grounded)
+
+- **Wiki grounding shipped**: `data/wiki_script/fft_story_dialogue.json` (script
+  kanonik Final Fantasy Wiki, 66 scene / 1970 baris) sekarang dipakai untuk
+  *grounding* translator. Tiap blok dicocokkan ke baris kanonik (`psp_translate/
+  translate/wiki_ref.py`); baris bersih disuntik ke prompt Gemini sbg `wiki_ref`
+  (makna otoritatif, anti-noise/anti-halusinasi). `script_check.py` refactor
+  pakai helper yang sama.
+- **gemini.py robustness**: (a) auto-retry control-code — blok yang drop/ubah
+  `<...>` dikirim ulang sekali, diadopsi hanya kalau code-nya sudah benar;
+  (b) `load_system_prompt` tahan template fenced/plain (fix bug saat user update
+  prompt tanpa ``` fence); (c) `merge_blocks` simpan `byte_length` utk blok baru.
+- **Chapter 01 — DONE & reviewed**: 84 auto + 11 approved + 5 skip. 0 control-code
+  mismatch. (Translation outputs live di `workspace/` yg gitignored.)
+- **Chapter 02 — DONE & reviewed**: 58 auto + 36 approved + 6 skip. 0 control-code
+  mismatch. 12 blok error (batch awal gagal parse/503) berhasil di-recover.
+- **Keputusan gaya (precedent untuk chapter berikutnya)**: honorifik boleh
+  dilokalkan; `Order`→"Ordo", `Corpse Brigade`→"Pasukan Mayat", nama institusi
+  spt `Akademy` tetap English. Konfirmasi per-term saat review.
+- **Diketahui aman**: sebagian bubble adalah bytecode-glued (mis-parsed: bytecode
+  + dialog tail) → di-`skip`; baris itu tetap English in-game (tidak korup).
+- **Berikutnya**: chapter 03+ (saran `--batch 8`). Nice-to-have: auto-retry untuk
+  error transient 503/JSON di `gemini.py` (sekarang masih perlu re-run manual).
+
 **Track B — Distribution (Fase 6 leftover + new)**
 - `xdelta3` patch generator (TODO: `psp_translate/xdelta_build.py`)
 - README untuk distribusi patch ke end-user
@@ -554,4 +578,4 @@ CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
 
 ---
 
-*Last updated: 2026-06-20 (post-refactor: tools/ → psp_translate/ package + data/ + build/ + docs/ + tests/)*
+*Last updated: 2026-06-21 (Fase 8 started: wiki-grounded Gemini translate; chapter 01 & 02 done + reviewed)*

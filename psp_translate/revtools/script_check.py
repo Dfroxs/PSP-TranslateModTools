@@ -12,19 +12,10 @@ Usage:
 """
 from __future__ import annotations
 import argparse, json, re, sys
-from difflib import SequenceMatcher
 from pathlib import Path
 
 from psp_translate.translate.gemini import looks_like_dialog
-
-WIKI = Path('data/wiki_script/fft_story_dialogue.json')
-
-
-def norm_en(s: str) -> str:
-    s = re.sub(r'<[^<>]+>', ' ', s)          # strip control codes / hex tags
-    s = s.lower()
-    s = re.sub(r'[^a-z0-9 ]+', ' ', s)
-    return re.sub(r'\s+', ' ', s).strip()
+from psp_translate.translate.wiki_ref import norm_en, best_match, load_wiki
 
 
 def has_embedded_dialogue(en: str) -> bool:
@@ -45,22 +36,6 @@ def has_embedded_dialogue(en: str) -> bool:
     return len(real) >= 4
 
 
-def best_match(block_norm: str, wiki):
-    """Return (wiki_entry, score) best matching this block (substring or fuzzy)."""
-    best, best_score = None, 0.0
-    for w in wiki:
-        wn = w['norm']
-        if len(wn) < 8:
-            continue
-        if wn in block_norm:                 # canonical line embedded in block
-            return w, 1.0
-        # fuzzy on the readable core
-        r = SequenceMatcher(None, wn, block_norm).ratio()
-        if r > best_score:
-            best, best_score = w, r
-    return best, best_score
-
-
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('chapter', type=Path, help='workspace chapter_*.out.json')
@@ -68,7 +43,7 @@ def main() -> int:
     ap.add_argument('--show-unmatched', action='store_true')
     args = ap.parse_args()
 
-    wiki = json.loads(WIKI.read_text())['flat']
+    wiki = load_wiki()
     blocks = json.loads(args.chapter.read_text())['blocks']
 
     problems_skip, problems_garbage, ok = [], [], 0

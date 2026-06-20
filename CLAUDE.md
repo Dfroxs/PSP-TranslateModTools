@@ -119,6 +119,8 @@ The generic scanner CANNOT find dialog in FFT WoTL because text is custom-encode
 - `psp_translate/codec/char_table.py` — CLI to build & maintain `char_table.json`.
 - `data/char_table.json` — mapping `byte → Unicode char` for FFT WoTL custom encoding. Currently 62 single-byte (digit + A-Z + a-z) + punctuation + multi-byte sequences.
 - `psp_translate/codec/decode.py` — decodes `TEST.EVT` and similar files using `char_table.json`. Handles single-byte, multi-byte sequences, control codes, padding skip, search mode.
+- `data/wiki_script/fft_story_dialogue.json` — canonical FFT WoTL story dialogue (Final Fantasy Wiki, 66 scenes / 1970 lines), parsed by `revtools/wiki_parse.py`. Used to **ground** the Gemini translator: each decoded block is matched to its clean canonical line.
+- `psp_translate/translate/wiki_ref.py` — shared `norm_en` / `best_match` / `load_wiki` / `match_block`. Both `translate/gemini.py` (grounding) and `revtools/script_check.py` (QA) import from here — no duplicated matching logic.
 
 **Two architectural invariants** that must be preserved when adding modules:
 
@@ -190,6 +192,22 @@ Multi-byte:
   `<SPEAKER>`. `psp_translate/translate/pipeline.py :: validate_translation` enforces this and ABORTS
   the pipeline on violation (override: `--ignore-control-errors`). Dropping a
   `<SPEAKER>` tag makes the speaker name disappear in-game.
+- **Wiki-grounded translation (`translate/gemini.py`)**: each block is matched to
+  its canonical Final Fantasy Wiki line (`wiki_ref`) and the model translates that
+  clean meaning (anti-noise/anti-hallucination), while still preserving `en`'s
+  control codes and fitting the bubble byte budget. Two control-code safety layers:
+  (1) **auto-retry** — a block that drops/alters `<...>` is re-sent once and only
+  adopted if the codes are then correct; (2) the pipeline **ABORT** above. Result:
+  `id_auto`/`id_final` should never carry a control-code mismatch.
+- **Style precedent (chapter 01-02 review)**: honorifics may be localized; `Order`
+  →"Ordo", `Corpse Brigade`→"Pasukan Mayat", institution names like `Akademy` stay
+  English. The hardcoded proper-noun validator flags these for human review — they
+  are style calls, not errors. Confirm per-term during review.
+- **Bytecode-glued bubbles**: some bubbles are mis-parsed (bytecode prefix + real
+  dialogue at the tail, e.g. prayers/narration). `looks_like_dialog` marks them
+  `skip`, so that line stays English in-game — the SAFE choice, since translating
+  would require the model to reproduce hundreds of bytecode bytes verbatim. Fixing
+  this properly needs a parser split (out of scope for translation).
 - Always test repacked ISOs in PPSSPP.
 
 ## Reference files
