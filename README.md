@@ -28,7 +28,7 @@ Proyek ini punya **dua lapis**:
 ```
 PspModTools/
 ├── psp_modtool/        # Bagian 1 — CLI generik ISO 9660 / UMD (pure stdlib)
-├── psp_translate/      # Bagian 2 — FFT WoTL toolkit (17 subcommand `psp-translate`)
+├── psp_translate/      # Bagian 2 — FFT WoTL toolkit (20 subcommand `psp-translate`)
 ├── data/               # Source-of-truth versioned: char_table.json,
 │                       #   fftpack_event_map.json, proper_nouns.json
 ├── build/              # Generated, gitignored: events_parsed.json,
@@ -145,12 +145,22 @@ python -m psp_translate workspace build/events_parsed.json workspace/ --filter-q
 # 2. Auto-translate satu chunk dengan Gemini (butuh GEMINI_API_KEY)
 python -m psp_translate gemini workspace/chapter_01.json workspace/chapter_01.out.json [--start N --end M]
 
-# 3. (review id_final untuk block ber-flag) lalu rakit jadi ISO modifikasi
+# 3. Auto-apply precedent proper-noun + approve block yang tinggal precedent
+python -m psp_translate review-apply workspace/chapter_01.out.json
+
+# 4. (opsional) recover dialog yang ter-skip + cross-check vs wiki script
+python -m psp_translate script-check workspace/chapter_01.out.json
+
+# 5. Review sisa block ber-flag (byte overflow + proper-noun BARU), isi id_final,
+#    lalu rakit jadi ISO modifikasi
 python -m psp_translate pipeline \
     --translations workspace/chapter_01.out.json \
     --original-iso "games/FFT WoTL.iso" \
     --output-iso /tmp/FFT_ID.iso
 ```
+
+> Langkah 3-5 (review) bisa juga lewat **web UI**: `python -m psp_translate webui`
+> lalu buka `http://127.0.0.1:8000`. Lihat [bagian Review web UI](#review-web-ui-psp-translate-webui).
 
 `psp-translate pipeline` menjalankan: validasi control-code (FATAL kalau ada
 `<SPEAKER>`/`<f8>`/dll hilang) → repack EVT → patch fftpack.bin → patch ISO
@@ -168,6 +178,30 @@ export GEMINI_API_KEY="AIza..."     # sesi sementara
 
 Gunakan `--dry-run` untuk melihat prompt tanpa memakai kuota API.
 
+### Review web UI (`psp-translate webui`)
+
+Workbench browser lokal untuk menerjemahkan / preview / edit / review chapter —
+**stdlib `http.server` saja** (tanpa pip/npm). Butuh `GEMINI_API_KEY` untuk
+fitur translate + chat.
+
+```bash
+python -m psp_translate webui [--host 127.0.0.1] [--port 8000]
+# lalu buka http://127.0.0.1:8000
+```
+
+Single-page app (`psp_translate/webui/static/index.html`) + backend
+`psp_translate/webui/server.py`. Membungkus subcommand yang ada sebagai job
+subprocess dengan live-log via SSE:
+
+- **Full Translate** → `gemini`
+- **Script Check** → `script-check`
+
+Per-block editor menampilkan pratinjau dialog ala FFT, byte budget real
+(`codec.encode`), dan menulis `id_final`/`status` balik ke
+`chapter_NN.out.json`. Tab filter memetakan status → bucket: `approved`→Done;
+`auto`/`needs_review`/`pending`→Review; `error`→Error; `skip`→Skip. Chat Gemini
+in-app (reuse `google.genai`).
+
 ### Sebagai package terpasang
 
 `pip install -e .` (dari Bagian 1) sudah memasang **dua** console script.
@@ -175,7 +209,7 @@ Setelah install, `python -m psp_translate <sub>` boleh disingkat jadi
 `psp-translate <sub>`:
 
 ```bash
-psp-translate                                 # daftar 17 subcommand
+psp-translate                                 # daftar 20 subcommand
 psp-translate verify                          # regression gate (stretch + roundtrip)
 psp-translate decode <evt> data/char_table.json --search "Father"
 psp-translate pipeline \
