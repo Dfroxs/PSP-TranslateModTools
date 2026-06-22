@@ -41,6 +41,23 @@ PROPER_NOUNS = paths.PROPER_NOUNS
 FFTPACK_ISO_OFFSET = paths.FFTPACK_ISO_OFFSET
 
 
+# Lazy encodability check — char yang tak ada di char_table akan di-DROP diam-diam
+# oleh encoder saat repack (korupsi senyap). Kita gate-nya sebagai error FATAL,
+# sejajar control code. Degrade gracefully kalau tabel/encoder tak tersedia.
+_ENCODE_TABLE_CACHE = None
+
+
+def _unencodable(text: str) -> list[str]:
+    global _ENCODE_TABLE_CACHE
+    try:
+        from psp_translate.codec.encode import find_unencodable, load_table
+        if _ENCODE_TABLE_CACHE is None:
+            _ENCODE_TABLE_CACHE = load_table(CHAR_TABLE)
+        return find_unencodable(text, *_ENCODE_TABLE_CACHE)
+    except Exception:  # pragma: no cover - degrade if encoder/table unavailable
+        return []
+
+
 def run_step(label: str, cmd: list[str]) -> bool:
     """Run subprocess step, print status."""
     print(f'\n=== {label} ===', file=sys.stderr)
@@ -64,7 +81,10 @@ def run_step(label: str, cmd: list[str]) -> bool:
 # Token control-code di dalam teks decoded: <SPEAKER>, <PRAYER>, <e0>, <f8>,
 # <e3>, <xx> hex, dll. Semua ini WAJIB dipertahankan di id_final — kalau Gemini
 # membuangnya, nama speaker hilang / dialog rusak / pointer bergeser.
-CONTROL_TOKEN_RE = re.compile(r'<[^<>]+>')
+# `<e3>0`: dialog-start `<e3>` selalu diikuti byte struktural 0x00 (decoded jadi
+# glyph '0'). Itu bagian scaffold, bukan teks — kunci sbg satu token (dialternasi
+# duluan) supaya drop-nya terdeteksi. `<e3><db>`/`<e3><ff>` (tanpa '0') aman.
+CONTROL_TOKEN_RE = re.compile(r'<e3>0|<[^<>]+>')
 
 
 def _control_tokens(s: str):
@@ -88,8 +108,9 @@ def validate_translation(trans_path: Path, proper_nouns_path: Path) -> dict:
     blocks = trans.get('blocks', trans) if isinstance(trans, dict) else trans
     warnings = []
     control_errors = []
+    encode_errors = []
     info = {'total_blocks': len(blocks), 'translated': 0,
-            'warnings': [], 'control_errors': []}
+            'warnings': [], 'control_errors': [], 'encode_errors': []}
 
     for block in blocks:
         if not isinstance(block, dict):
@@ -118,6 +139,15 @@ def validate_translation(trans_path: Path, proper_nouns_path: Path) -> dict:
                 f'(nama speaker akan hilang in-game)'
             )
 
+        # --- 1b. Encodability (FATAL) — char yang akan di-drop diam-diam ---
+        bad = _unencodable(id_text)
+        if bad:
+            from collections import Counter
+            encode_errors.append(
+                f'  block#{bid}: char unencodable {dict(Counter(bad))} '
+                f'(akan DROP diam-diam saat repack → teks korup)'
+            )
+
         # --- 2. Proper nouns (non-fatal warning) ---
         for noun in all_nouns:
             if len(noun) > 3 and noun in en and noun not in id_text:
@@ -125,6 +155,7 @@ def validate_translation(trans_path: Path, proper_nouns_path: Path) -> dict:
 
     info['warnings'] = warnings
     info['control_errors'] = control_errors
+    info['encode_errors'] = encode_errors
     return info
 
 
@@ -169,6 +200,12 @@ def main() -> int:
         for cf in chunk_files:
             d = json.loads(cf.read_text())
             for block in d.get('blocks', []):
+                # skip/error blocks must NOT be substituted: 'skip' = non_dialog
+                # bytecode that must stay byte-verbatim (its id_auto may still
+                # hold the decoded bytecode, which would re-encode lossy/longer
+                # and get needlessly rejected); 'error' = untranslated.
+                if block.get('status') in ('skip', 'error'):
+                    continue
                 if block.get('id_final') or block.get('id_auto'):
                     merged_blocks.append(block)
         merged_path = args.workdir / 'merged_translations.json'
@@ -203,6 +240,21 @@ def main() -> int:
             print('   Perbaiki translasi (pertahankan <SPEAKER>, <f8>, <e0>, dll),',
                   file=sys.stderr)
             print('   atau paksa lanjut dengan --ignore-control-errors (berisiko).',
+                  file=sys.stderr)
+            return 1
+
+        # Encodability = FATAL (selalu — char unencodable = korupsi senyap, tak
+        # ada alasan sah untuk meneruskannya; tak bisa di-override).
+        enc = info.get('encode_errors', [])
+        print(f'  Encode err      : {len(enc)}', file=sys.stderr)
+        for e in enc[:10]:
+            print(e, file=sys.stderr)
+        if len(enc) > 10:
+            print(f'  ... +{len(enc) - 10} more', file=sys.stderr)
+        if enc:
+            print('\n❌ ABORT: ada karakter yang tak bisa di-encode (akan di-drop '
+                  'diam-diam saat repack).', file=sys.stderr)
+            print('   Ganti char tsb (mis. "&"→"dan", em-dash→"-", smart-quote→\').',
                   file=sys.stderr)
             return 1
 

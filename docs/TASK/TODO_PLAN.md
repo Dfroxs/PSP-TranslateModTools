@@ -578,6 +578,43 @@ CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
 - **Berikutnya**: chapter 03+ dgn alur `gemini` → `review-apply` → review sisa
   (kini bisa lewat web UI).
 
+#### ✅ Checkpoint 2026-06-23 — chapter 03–10 + 4 fix korupsi-senyap + test ISO
+
+- **Progres translasi: chapter 01–10 DONE & reviewed** (10/91). Tiap chapter
+  diverifikasi bersih: **0 control-code mismatch, 0 repack-overflow, 0 unencodable**.
+  Outputs `workspace/chapter_NN.out.json` (gitignored). Sisa: chapter 11–91.
+- **4 bug korupsi-senyap ditemukan saat review per-chapter + di-fix di akar**
+  (semua kelas: char non-`<...>` yg lolos validator tapi merusak output):
+  1. `fix(translate)` **`<e3>0` guard** — byte struktural `0x00` setelah dialog-start
+     `<e3>` di-decode jadi digit `'0'`; model kadang membuangnya (nama speaker
+     rusak). Dikunci `<e3>0` jadi satu token control di kedua validator.
+  2. `feat(translate)` **gate unencodable** — `encode_string` DROP diam-diam char
+     di luar char_table (mis. `&`). Sekarang `find_unencodable` → flag blocking +
+     ABORT di pipeline. (Nemu live: ch02 #440 "diam & lihat".)
+  3. `feat(translate)` **normalize tipografi** — model rutin keluarkan `&`/smart-quote/
+     ellipsis; di-normalisasi deterministik (`&`→"dan", `' '`→`'`, `…`→"...") sebelum
+     validasi → tutup kelas error di sumber.
+  4. `fix(translate)` **split bytecode-glued didahulukan** — `split_bytecode_prefix`
+     dulu di-gate di belakang `not looks_like_dialog`; bubble glued dgn ekor dialog
+     kaya kata bypass split → bytecode dikirim utuh ke model → prefix bisa korup
+     (ch09 #1810 drop `"`). Sekarang split dicoba lebih dulu + guard "prefix harus
+     bytecode".
+- **`fix(pipeline)`**: merge dir kecualikan blok `status` skip/error (jangan kirim
+  bytecode non-dialog ke repack).
+- **PELAJARAN budget (penting utk review manual):** budget teks efektif =
+  `byte_length − 1` (repack SELALU menambah terminator `0xFE`). Cek fit yg benar:
+  `len(encode_string(t)) + 1 ≤ byte_length` (atau pakai `gemini.encoded_byte_length`).
+  Cek manual yg lupa `+1` bikin 48 blok ke-skip diam-diam di build pertama — sudah
+  diperbaiki semua.
+- **Test ISO sukses**: `pipeline --translations workspace/ --original-iso "<USA>.iso"`
+  → ISO size-identical, 765 blok diterapkan, 1 skip sah (#964 "Sand rat?" bud 10 byte
+  tak muat → tetap English). Belum dites in-game di PPSSPP.
+- **Env**: `google-genai` tak bisa ke system Python (PEP 668) → dipakai venv proyek
+  `.venv/` (gitignored). Command API: `.venv/bin/python -m psp_translate gemini ...`.
+- **Pola review per-chapter** (konsisten 03–10): `gemini` → fix control-error
+  (rekonstruksi `<f8>` selaras segmen EN) → `review-apply` → padatkan overflow
+  (reuse teks kanonik utk baris berulang antar-cabang) → verifikasi 0/0/0.
+
 **Track B — Distribution (Fase 6 leftover + new)**
 - `xdelta3` patch generator (TODO: `psp_translate/xdelta_build.py`)
 - README untuk distribusi patch ke end-user
@@ -593,4 +630,4 @@ CLI: `psp-translate <sub>` (or `python -m psp_translate <sub>`).
 
 ---
 
-*Last updated: 2026-06-21 (Fase 8: wiki-grounded Gemini translate; chapter 01 & 02 done + reviewed; review web UI `psp-translate webui` shipped)*
+*Last updated: 2026-06-23 (Fase 8: chapter 01–10 done + reviewed (0/0/0); 4 silent-corruption fixes at root + pipeline merge fix; test ISO built size-identical)*

@@ -47,7 +47,13 @@ from psp_translate.translate import wiki_ref
 PROMPT_TEMPLATE_PATH = paths.PROMPT_TEMPLATE
 
 # Regex untuk control code <XX> (hex byte tag, juga <SPEAKER>, <PRAYER>, <e0>...)
-CONTROL_CODE_RE = re.compile(r'<[A-Za-z0-9]{1,8}>')
+# CATATAN: dialog-start `<e3>` SELALU diikuti byte struktural 0x00 (= glyph '0').
+# `0x00` itu bagian dari scaffold bubble, bukan teks — tapi decoder mengeluarkannya
+# sebagai digit '0' biasa, jadi model kadang membuangnya tanpa terdeteksi (nama
+# speaker hilang in-game). Kita kunci `<e3>0` sebagai SATU token control (dialternasi
+# duluan) supaya validasi/retry menangkapnya. Kasus bytecode `<e3><db>`/`<e3><ff>`
+# (tak ada '0' menyusul) tetap jatuh ke token generik `<e3>`.
+CONTROL_CODE_RE = re.compile(r'<e3>0|<[A-Za-z0-9]{1,8}>')
 
 # Proper nouns yang HARUS preserve (sub-set untuk validasi cepat).
 # Kalau ada di input, harus juga ada di output id_text.
@@ -183,6 +189,32 @@ ABBREV_EXPANSIONS: dict[str, str] = {
 }
 
 
+# The model recurrently emits typographic variants ABSENT from the FFT char
+# table — '&' (shorthand "and"), smart quotes, ellipsis. Each has a trivial
+# lossless ASCII equivalent that IS encodable, so we normalize them
+# deterministically here instead of relying on the model/retry to avoid them.
+# This closes the encodability-error class at the source; genuinely foreign
+# chars (no ASCII equivalent) still fall through to the unencodable gate.
+_CHAR_NORMALIZE: dict[str, str] = {
+    '&': 'dan',
+    '‘': "'", '’': "'",      # ‘ ’  smart single quotes -> '
+    '“': '"', '”': '"',      # “ ”  smart double quotes -> "
+    '…': '...',                    # …    ellipsis -> ...
+}
+# NB: en/em dash (– —) are intentionally NOT normalized — they ARE in the char
+# table (multibyte), so converting them to '-' would change the intended glyph.
+
+
+def normalize_unencodable(text: str) -> str:
+    """Replace common non-encodable typographic chars with encodable ASCII
+    equivalents (lossless). Applied to model output only — never to verbatim
+    bytecode prefixes."""
+    for src, dst in _CHAR_NORMALIZE.items():
+        if src in text:
+            text = text.replace(src, dst)
+    return text
+
+
 def expand_abbreviations(id_text: str, en: str) -> str:
     """Expand abbreviations back to full words where the byte budget allows.
 
@@ -212,7 +244,11 @@ def expand_abbreviations(id_text: str, en: str) -> str:
 # real encoder can't be loaded (e.g. char table missing) we degrade gracefully
 # to the estimate so the tool still runs standalone.
 try:
-    from psp_translate.codec.encode import encode_string as _encode_string, load_table as _load_table
+    from psp_translate.codec.encode import (
+        encode_string as _encode_string,
+        load_table as _load_table,
+        find_unencodable as _find_unencodable,
+    )
     from psp_translate import paths as _paths
 
     _CHAR_TABLE_CACHE = None
@@ -230,12 +266,20 @@ try:
             b = b + b'\xfe'
         return len(b)
 
+    def unencodable_chars(text: str) -> list[str]:
+        """Token yang encoder akan DROP diam-diam (char tak ter-mapping / named
+        token tak dikenal). List kosong = aman."""
+        return _find_unencodable(text, *_char_table())
+
     _REAL_ENCODER = True
 except Exception:  # pragma: no cover - fallback path
     _REAL_ENCODER = False
 
     def encoded_byte_length(text: str) -> int:
         return estimate_byte_length(text)
+
+    def unencodable_chars(text: str) -> list[str]:
+        return []
 
 
 # Ordered full->short reductions, applied ONLY as needed to fit a tight budget.
@@ -356,6 +400,12 @@ def validate_translation(en: str, id_text: str) -> list[str]:
         if extra:
             flags.append(f'extra_control_codes:{dict(extra)}')
 
+    # Unencodable chars — encode_string would DROP these silently (silent
+    # corruption: a char/word vanishes from the in-game text). BLOCKING.
+    bad = unencodable_chars(id_text)
+    if bad:
+        flags.append(f'unencodable_chars:{dict(Counter(bad))}')
+
     # Proper nouns — every PN present in en must be present in id_text
     for pn in PROPER_NOUNS:
         if pn in en and pn not in id_text:
@@ -380,7 +430,10 @@ def finalize_translation(b: dict[str, Any], raw_id_text: str) -> tuple[str, list
     """
     src = model_en(b)                       # what the model translated (tail or full)
     prefix = b.get('_prefix') or ''
-    tail = expand_abbreviations(raw_id_text, src)
+    # Normalize typographic chars BEFORE abbrev/budget so the encoded length
+    # reflects the real ('&'->'dan' etc.) output. Prefix is verbatim bytecode —
+    # never normalized.
+    tail = expand_abbreviations(normalize_unencodable(raw_id_text), src)
     full = prefix + tail
     flags = validate_translation(b['en'], full)   # validate against FULL bubble
     budget = b.get('byte_length')
@@ -399,6 +452,14 @@ def has_control_error(flags: list[str]) -> bool:
     """True if flags include a control-code mismatch (missing/extra)."""
     return any(f.startswith('missing_control_codes')
                or f.startswith('extra_control_codes') for f in flags)
+
+
+def has_blocking_error(flags: list[str]) -> bool:
+    """True kalau ada error yang HARUS dicegah sebelum repack: control-code
+    mismatch ATAU char unencodable (yang akan di-drop diam-diam). Dipakai untuk
+    memicu retry dan sebagai syarat adopsi hasil retry (strict win)."""
+    return has_control_error(flags) or any(
+        f.startswith('unencodable_chars') for f in flags)
 
 
 def build_retry_message(batch: list[dict[str, Any]]) -> str:
@@ -429,7 +490,9 @@ def build_retry_message(batch: list[dict[str, Any]]) -> str:
         '`required_control_codes` the EXACT number of times shown (e.g. <f8> x2 '
         'means two <f8> in the output), in natural positions, and a <SPEAKER>... '
         'bubble must START with that speaker tag. Keep the meaning of `wiki_ref`/'
-        '`en`, fit `max_bytes`, preserve proper nouns. Output ONLY a JSON array '
+        '`en`, fit `max_bytes`, preserve proper nouns. Use ONLY plain ASCII '
+        'letters/digits/space and . , ! ? \' - (write the word "dan", never the '
+        '"&" symbol; no smart quotes or em-dash). Output ONLY a JSON array '
         '[{"id":N,"id_text":"..."}], same order, same length.\n\n'
         f'{js}'
     )
@@ -625,6 +688,11 @@ def split_bytecode_prefix(en: str):
         return None
     if not looks_like_dialog(tail):
         return None
+    # The prefix must be BYTECODE, not dialogue — otherwise a normal bubble that
+    # merely contains a stray <db> would be wrongly split, leaving its leading
+    # dialogue untranslated.
+    if looks_like_dialog(prefix):
+        return None
     return prefix, tail
 
 
@@ -704,20 +772,24 @@ def main() -> int:
         entry = merged[by_id_idx[b['id']]]
         if entry['status'] in ('auto', 'approved', 'skip'):
             continue
+        # Recovery: bytecode-glued bubble with real dialogue after a <db> marker
+        # — translate ONLY the tail, keep the prefix BYTE-VERBATIM. Checked BEFORE
+        # looks_like_dialog: a rich dialogue tail can make looks_like_dialog(full)
+        # True, which would otherwise send the whole bubble (incl. executable
+        # bytecode) to the model and risk silent corruption of the prefix (a
+        # dropped/altered byte there is not a <...> token, so no gate catches it).
+        sp = split_bytecode_prefix(b['en'])
+        if sp:
+            prefix, tail = sp
+            full_budget = b.get('byte_length')
+            pre_len = encoded_byte_length(prefix)
+            # Recoverable only if the prefix fits and leaves room for a tail.
+            if full_budget and pre_len < full_budget:
+                b['_prefix'], b['_tail'] = prefix, tail
+                b['_tail_budget'] = full_budget - pre_len
+                recovered += 1
+                continue
         if not looks_like_dialog(b['en']):
-            # Recovery: bytecode-glued bubble with real dialogue after a <db>
-            # marker — translate only the tail, keep the prefix verbatim.
-            sp = split_bytecode_prefix(b['en'])
-            if sp:
-                prefix, tail = sp
-                full_budget = b.get('byte_length')
-                pre_len = encoded_byte_length(prefix)
-                # Recoverable only if the prefix fits and leaves room for a tail.
-                if full_budget and pre_len < full_budget:
-                    b['_prefix'], b['_tail'] = prefix, tail
-                    b['_tail_budget'] = full_budget - pre_len
-                    recovered += 1
-                    continue
             entry['status'] = 'skip'
             entry['flags'] = ['non_dialog']
             newly_skipped += 1
@@ -829,7 +901,7 @@ def main() -> int:
         retry_blocks = [
             b for b in batch
             if merged[by_id_idx[b['id']]]['flags'] != ['missing_from_response']
-            and has_control_error(merged[by_id_idx[b['id']]]['flags'])
+            and has_blocking_error(merged[by_id_idx[b['id']]]['flags'])
         ]
         if retry_blocks:
             for b in retry_blocks:
@@ -853,8 +925,8 @@ def main() -> int:
                 if b['id'] not in rmap:
                     continue
                 new_text, new_flags = finalize_translation(b, rmap[b['id']])
-                # Adopt only if the control-code mismatch is gone (strict win).
-                if not has_control_error(new_flags):
+                # Adopt only if blocking errors (control-code + unencodable) gone.
+                if not has_blocking_error(new_flags):
                     entry = merged[by_id_idx[b['id']]]
                     entry['id_auto'] = new_text
                     entry['flags'] = new_flags
