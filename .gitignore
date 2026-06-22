@@ -1,6 +1,7 @@
 /games
 /extracted
 .claude
+.venv
 strings.json
 
 # Python cache
