@@ -200,6 +200,12 @@ def main() -> int:
         for cf in chunk_files:
             d = json.loads(cf.read_text())
             for block in d.get('blocks', []):
+                # skip/error blocks must NOT be substituted: 'skip' = non_dialog
+                # bytecode that must stay byte-verbatim (its id_auto may still
+                # hold the decoded bytecode, which would re-encode lossy/longer
+                # and get needlessly rejected); 'error' = untranslated.
+                if block.get('status') in ('skip', 'error'):
+                    continue
                 if block.get('id_final') or block.get('id_auto'):
                     merged_blocks.append(block)
         merged_path = args.workdir / 'merged_translations.json'
