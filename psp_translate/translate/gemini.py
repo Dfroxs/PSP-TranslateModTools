@@ -688,6 +688,11 @@ def split_bytecode_prefix(en: str):
         return None
     if not looks_like_dialog(tail):
         return None
+    # The prefix must be BYTECODE, not dialogue — otherwise a normal bubble that
+    # merely contains a stray <db> would be wrongly split, leaving its leading
+    # dialogue untranslated.
+    if looks_like_dialog(prefix):
+        return None
     return prefix, tail
 
 
@@ -767,20 +772,24 @@ def main() -> int:
         entry = merged[by_id_idx[b['id']]]
         if entry['status'] in ('auto', 'approved', 'skip'):
             continue
+        # Recovery: bytecode-glued bubble with real dialogue after a <db> marker
+        # — translate ONLY the tail, keep the prefix BYTE-VERBATIM. Checked BEFORE
+        # looks_like_dialog: a rich dialogue tail can make looks_like_dialog(full)
+        # True, which would otherwise send the whole bubble (incl. executable
+        # bytecode) to the model and risk silent corruption of the prefix (a
+        # dropped/altered byte there is not a <...> token, so no gate catches it).
+        sp = split_bytecode_prefix(b['en'])
+        if sp:
+            prefix, tail = sp
+            full_budget = b.get('byte_length')
+            pre_len = encoded_byte_length(prefix)
+            # Recoverable only if the prefix fits and leaves room for a tail.
+            if full_budget and pre_len < full_budget:
+                b['_prefix'], b['_tail'] = prefix, tail
+                b['_tail_budget'] = full_budget - pre_len
+                recovered += 1
+                continue
         if not looks_like_dialog(b['en']):
-            # Recovery: bytecode-glued bubble with real dialogue after a <db>
-            # marker — translate only the tail, keep the prefix verbatim.
-            sp = split_bytecode_prefix(b['en'])
-            if sp:
-                prefix, tail = sp
-                full_budget = b.get('byte_length')
-                pre_len = encoded_byte_length(prefix)
-                # Recoverable only if the prefix fits and leaves room for a tail.
-                if full_budget and pre_len < full_budget:
-                    b['_prefix'], b['_tail'] = prefix, tail
-                    b['_tail_budget'] = full_budget - pre_len
-                    recovered += 1
-                    continue
             entry['status'] = 'skip'
             entry['flags'] = ['non_dialog']
             newly_skipped += 1
