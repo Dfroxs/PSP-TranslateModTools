@@ -124,6 +124,37 @@ def encode_string(
     return bytes(out)
 
 
+def find_unencodable(
+    text: str,
+    char_to_byte: dict[str, int],
+    char_to_multibyte: dict[str, bytes],
+    name_to_bytes: dict[str, bytes],
+) -> list[str]:
+    """Token yang akan di-DROP DIAM-DIAM oleh encode_string: char tak ter-mapping
+    atau named token <NAME> yang tak dikenal. Raw byte `<XX>` selalu valid.
+
+    Meniru tokenisasi encode_string PERSIS supaya tak ada false positive untuk
+    `<...>` / multibyte / nama. Return list (boleh berulang) offender yang
+    human-readable, mis. ['&', '<FOO>']. List kosong = sepenuhnya encodable.
+    """
+    bad: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        m = TOKEN_RE.match(text, i)
+        if not m:
+            i += 1
+            continue
+        hex_token, name_token, char_token = m.groups()
+        if name_token and name_token not in name_to_bytes:
+            bad.append(f'<{name_token}>')
+        elif (char_token and char_token != '\n'
+              and char_token not in char_to_multibyte
+              and char_token not in char_to_byte):
+            bad.append(char_token)
+        i = m.end()
+    return bad
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('input', type=Path, help='Input text file (decoded format)')

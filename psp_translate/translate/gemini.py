@@ -218,7 +218,11 @@ def expand_abbreviations(id_text: str, en: str) -> str:
 # real encoder can't be loaded (e.g. char table missing) we degrade gracefully
 # to the estimate so the tool still runs standalone.
 try:
-    from psp_translate.codec.encode import encode_string as _encode_string, load_table as _load_table
+    from psp_translate.codec.encode import (
+        encode_string as _encode_string,
+        load_table as _load_table,
+        find_unencodable as _find_unencodable,
+    )
     from psp_translate import paths as _paths
 
     _CHAR_TABLE_CACHE = None
@@ -236,12 +240,20 @@ try:
             b = b + b'\xfe'
         return len(b)
 
+    def unencodable_chars(text: str) -> list[str]:
+        """Token yang encoder akan DROP diam-diam (char tak ter-mapping / named
+        token tak dikenal). List kosong = aman."""
+        return _find_unencodable(text, *_char_table())
+
     _REAL_ENCODER = True
 except Exception:  # pragma: no cover - fallback path
     _REAL_ENCODER = False
 
     def encoded_byte_length(text: str) -> int:
         return estimate_byte_length(text)
+
+    def unencodable_chars(text: str) -> list[str]:
+        return []
 
 
 # Ordered full->short reductions, applied ONLY as needed to fit a tight budget.
@@ -362,6 +374,12 @@ def validate_translation(en: str, id_text: str) -> list[str]:
         if extra:
             flags.append(f'extra_control_codes:{dict(extra)}')
 
+    # Unencodable chars — encode_string would DROP these silently (silent
+    # corruption: a char/word vanishes from the in-game text). BLOCKING.
+    bad = unencodable_chars(id_text)
+    if bad:
+        flags.append(f'unencodable_chars:{dict(Counter(bad))}')
+
     # Proper nouns — every PN present in en must be present in id_text
     for pn in PROPER_NOUNS:
         if pn in en and pn not in id_text:
@@ -407,6 +425,14 @@ def has_control_error(flags: list[str]) -> bool:
                or f.startswith('extra_control_codes') for f in flags)
 
 
+def has_blocking_error(flags: list[str]) -> bool:
+    """True kalau ada error yang HARUS dicegah sebelum repack: control-code
+    mismatch ATAU char unencodable (yang akan di-drop diam-diam). Dipakai untuk
+    memicu retry dan sebagai syarat adopsi hasil retry (strict win)."""
+    return has_control_error(flags) or any(
+        f.startswith('unencodable_chars') for f in flags)
+
+
 def build_retry_message(batch: list[dict[str, Any]]) -> str:
     """Focused re-translation prompt for blocks whose control codes were dropped.
 
@@ -435,7 +461,9 @@ def build_retry_message(batch: list[dict[str, Any]]) -> str:
         '`required_control_codes` the EXACT number of times shown (e.g. <f8> x2 '
         'means two <f8> in the output), in natural positions, and a <SPEAKER>... '
         'bubble must START with that speaker tag. Keep the meaning of `wiki_ref`/'
-        '`en`, fit `max_bytes`, preserve proper nouns. Output ONLY a JSON array '
+        '`en`, fit `max_bytes`, preserve proper nouns. Use ONLY plain ASCII '
+        'letters/digits/space and . , ! ? \' - (write the word "dan", never the '
+        '"&" symbol; no smart quotes or em-dash). Output ONLY a JSON array '
         '[{"id":N,"id_text":"..."}], same order, same length.\n\n'
         f'{js}'
     )
@@ -835,7 +863,7 @@ def main() -> int:
         retry_blocks = [
             b for b in batch
             if merged[by_id_idx[b['id']]]['flags'] != ['missing_from_response']
-            and has_control_error(merged[by_id_idx[b['id']]]['flags'])
+            and has_blocking_error(merged[by_id_idx[b['id']]]['flags'])
         ]
         if retry_blocks:
             for b in retry_blocks:
@@ -859,8 +887,8 @@ def main() -> int:
                 if b['id'] not in rmap:
                     continue
                 new_text, new_flags = finalize_translation(b, rmap[b['id']])
-                # Adopt only if the control-code mismatch is gone (strict win).
-                if not has_control_error(new_flags):
+                # Adopt only if blocking errors (control-code + unencodable) gone.
+                if not has_blocking_error(new_flags):
                     entry = merged[by_id_idx[b['id']]]
                     entry['id_auto'] = new_text
                     entry['flags'] = new_flags
