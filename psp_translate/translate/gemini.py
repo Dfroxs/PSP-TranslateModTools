@@ -47,7 +47,13 @@ from psp_translate.translate import wiki_ref
 PROMPT_TEMPLATE_PATH = paths.PROMPT_TEMPLATE
 
 # Regex untuk control code <XX> (hex byte tag, juga <SPEAKER>, <PRAYER>, <e0>...)
-CONTROL_CODE_RE = re.compile(r'<[A-Za-z0-9]{1,8}>')
+# CATATAN: dialog-start `<e3>` SELALU diikuti byte struktural 0x00 (= glyph '0').
+# `0x00` itu bagian dari scaffold bubble, bukan teks — tapi decoder mengeluarkannya
+# sebagai digit '0' biasa, jadi model kadang membuangnya tanpa terdeteksi (nama
+# speaker hilang in-game). Kita kunci `<e3>0` sebagai SATU token control (dialternasi
+# duluan) supaya validasi/retry menangkapnya. Kasus bytecode `<e3><db>`/`<e3><ff>`
+# (tak ada '0' menyusul) tetap jatuh ke token generik `<e3>`.
+CONTROL_CODE_RE = re.compile(r'<e3>0|<[A-Za-z0-9]{1,8}>')
 
 # Proper nouns yang HARUS preserve (sub-set untuk validasi cepat).
 # Kalau ada di input, harus juga ada di output id_text.

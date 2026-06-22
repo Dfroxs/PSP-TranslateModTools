@@ -64,7 +64,10 @@ def run_step(label: str, cmd: list[str]) -> bool:
 # Token control-code di dalam teks decoded: <SPEAKER>, <PRAYER>, <e0>, <f8>,
 # <e3>, <xx> hex, dll. Semua ini WAJIB dipertahankan di id_final — kalau Gemini
 # membuangnya, nama speaker hilang / dialog rusak / pointer bergeser.
-CONTROL_TOKEN_RE = re.compile(r'<[^<>]+>')
+# `<e3>0`: dialog-start `<e3>` selalu diikuti byte struktural 0x00 (decoded jadi
+# glyph '0'). Itu bagian scaffold, bukan teks — kunci sbg satu token (dialternasi
+# duluan) supaya drop-nya terdeteksi. `<e3><db>`/`<e3><ff>` (tanpa '0') aman.
+CONTROL_TOKEN_RE = re.compile(r'<e3>0|<[^<>]+>')
 
 
 def _control_tokens(s: str):
