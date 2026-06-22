@@ -189,6 +189,32 @@ ABBREV_EXPANSIONS: dict[str, str] = {
 }
 
 
+# The model recurrently emits typographic variants ABSENT from the FFT char
+# table — '&' (shorthand "and"), smart quotes, ellipsis. Each has a trivial
+# lossless ASCII equivalent that IS encodable, so we normalize them
+# deterministically here instead of relying on the model/retry to avoid them.
+# This closes the encodability-error class at the source; genuinely foreign
+# chars (no ASCII equivalent) still fall through to the unencodable gate.
+_CHAR_NORMALIZE: dict[str, str] = {
+    '&': 'dan',
+    '‘': "'", '’': "'",      # ‘ ’  smart single quotes -> '
+    '“': '"', '”': '"',      # “ ”  smart double quotes -> "
+    '…': '...',                    # …    ellipsis -> ...
+}
+# NB: en/em dash (– —) are intentionally NOT normalized — they ARE in the char
+# table (multibyte), so converting them to '-' would change the intended glyph.
+
+
+def normalize_unencodable(text: str) -> str:
+    """Replace common non-encodable typographic chars with encodable ASCII
+    equivalents (lossless). Applied to model output only — never to verbatim
+    bytecode prefixes."""
+    for src, dst in _CHAR_NORMALIZE.items():
+        if src in text:
+            text = text.replace(src, dst)
+    return text
+
+
 def expand_abbreviations(id_text: str, en: str) -> str:
     """Expand abbreviations back to full words where the byte budget allows.
 
@@ -404,7 +430,10 @@ def finalize_translation(b: dict[str, Any], raw_id_text: str) -> tuple[str, list
     """
     src = model_en(b)                       # what the model translated (tail or full)
     prefix = b.get('_prefix') or ''
-    tail = expand_abbreviations(raw_id_text, src)
+    # Normalize typographic chars BEFORE abbrev/budget so the encoded length
+    # reflects the real ('&'->'dan' etc.) output. Prefix is verbatim bytecode —
+    # never normalized.
+    tail = expand_abbreviations(normalize_unencodable(raw_id_text), src)
     full = prefix + tail
     flags = validate_translation(b['en'], full)   # validate against FULL bubble
     budget = b.get('byte_length')
